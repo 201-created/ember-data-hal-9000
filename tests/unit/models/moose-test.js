@@ -108,7 +108,6 @@ test('can create a new record', function(){
 
   server = new Pretender(function(){
     this.post('/mooses', function(request){
-      console.log(request.requestBody);
       var json = JSON.parse(request.requestBody);
       deepEqual(json, {name: 'Marcy'}, 'POSTs correct JSON');
       return [200, {}, {
