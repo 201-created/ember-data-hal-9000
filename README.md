@@ -1,3 +1,6 @@
+[![Build
+Status](https://travis-ci.org/201-created/ember-data-hal-9000.svg?branch=master)](https://travis-ci.org/201-created/ember-data-hal-9000)
+
 # Ember-data-hal-9000
 
 This README outlines the details of collaborating on this Ember addon.
