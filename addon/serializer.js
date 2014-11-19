@@ -1,7 +1,7 @@
 import DS from "ember-data";
 import Ember from 'ember';
 
-export default DS.RESTSerializer.extend({
+export default DS.ActiveModelSerializer.extend({
   serializeIntoHash: function(hash, type, record, options){
     var serialized = this.serialize(record, options);
     Ember.keys(serialized).forEach(function(key){
@@ -10,8 +10,6 @@ export default DS.RESTSerializer.extend({
   },
 
   extractSingle: function(store, primaryType, rawPayload, recordId) {
-    delete rawPayload._links;
-
     var storePayload = {};
     storePayload[primaryType.typeKey] = rawPayload;
 
@@ -24,7 +22,17 @@ export default DS.RESTSerializer.extend({
   },
 
   normalize: function(type, hash, property) {
+    var links = hash._links || {};
     delete hash._links;
+
+    hash.links = hash.links || {};
+
+    Ember.keys(links).forEach(function(link){
+      if (link === 'self') { return; }
+
+      hash.links[link] = links[link].href;
+    });
+
     return this._super(type, hash, property);
   }
 
