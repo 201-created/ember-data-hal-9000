@@ -8,7 +8,15 @@ import Ember from "ember";
 var server;
 
 moduleForModel('car', 'Car : hasMany', {
-  needs: ['model:wheel', 'serializer:application', 'adapter:application'],
+  needs: [
+    'model:wheel',
+    'model:lugnut',
+    'model:owner',
+    'model:team',
+
+    'serializer:application',
+    'adapter:application'
+  ],
   teardown: function(){
     if (server) {
       server.shutdown();
@@ -17,7 +25,7 @@ moduleForModel('car', 'Car : hasMany', {
   }
 });
 
-test('car#hasMany wheels loads wheels', function(){
+test('car#hasMany wheels loads wheels from link', function(){
   var store = this.store();
 
   server = new Pretender(function(){
@@ -55,9 +63,6 @@ test('car#hasMany wheels loads wheels', function(){
 
   server.unhandledRequest = function(verb, path, request){
     ok(false, 'unhandled request for ' + verb + ' ' + path);
-  };
-  server.handledRequest = function(verb, path, request){
-    console.log('handled request for ' + verb + ' ' + path,request);
   };
 
   return Ember.run(function(){
