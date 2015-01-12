@@ -6,7 +6,10 @@ function EmbedExtractor(raw){
 }
 
 EmbedExtractor.prototype.extractArray = function(){
-  var result = this.extractEmbedded(this.raw);
+  var raw = this.raw;
+
+  var result = this.extractEmbedded(raw);
+
   var extractor = this;
 
   Ember.keys(extractor.sideloads).forEach(function(key){
