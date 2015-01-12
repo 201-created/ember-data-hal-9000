@@ -1,6 +1,7 @@
 {
   "name": "ember-data-hal-9000",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "main": "index.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -10,11 +11,11 @@
     "build": "ember build",
     "test": "ember test"
   },
-  "repository": "https://github.com/stefanpenner/ember-cli",
+  "repository": "https://github.com/201-created/ember-data-hal-9000",
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "201 Created",
   "license": "MIT",
   "devDependencies": {
     "body-parser": "^1.2.0",
@@ -32,7 +33,9 @@
     "glob": "^4.0.5"
   },
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "ember",
+    "ember-data"
   ],
   "ember-addon": {
     "configPath": "tests/dummy/config"
