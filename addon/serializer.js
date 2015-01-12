@@ -2,12 +2,72 @@ import DS from "ember-data";
 import Ember from 'ember';
 import EmbedExtractor from "./embed-extractor";
 
+// requestType values that indicate that we are loading a collection, not
+// a single resource
+var findManyRequestTypes = ["findMany", "findAll", "findHasMany", "findQuery"];
+
+// Reserved keys, per the HAL spec
+var halReservedKeys = ['_embedded', '_links'];
+
+var reservedKeys = halReservedKeys.concat(['meta']);
+
 export default DS.ActiveModelSerializer.extend({
   serializeIntoHash: function(hash, type, record, options){
     var serialized = this.serialize(record, options);
     Ember.keys(serialized).forEach(function(key){
       hash[key] = serialized[key];
     });
+  },
+
+  /*
+   pass `requestType` to extractMeta so we know if we are
+   dealing with a list resource (i.e., GET /users) which will
+   have meta data in the root of the payload, i.e.:
+   {
+     page: 1,
+     total_pages: 5,
+     _embedded: {
+       users: [{...}, ...]
+     }
+   }
+
+   If the requestType is for a single resource we cannot determine
+   which properties are metadata and which are part of the payload
+   for that resource because they are all at the root level of the payload,
+   so punt on that here -- per-model serializers can override extractMeta
+   if they need to.
+
+   @return {Object} The payload, modified to remove metadata
+  */
+  extractMeta: function(store, type, payload, requestType){
+
+    if ( findManyRequestTypes.indexOf(requestType) > -1 ) {
+
+      var meta = {};
+      Ember.keys(payload).forEach(function(key){
+        if (reservedKeys.indexOf(key) > -1) { return; }
+
+        meta[key] = payload[key];
+        delete payload[key];
+      });
+
+      // set the metadata
+      store.metaForType(type, meta);
+    }
+
+    this._super(store, type, payload);
+
+    return payload;
+  },
+
+  /*
+   * Override `extract` so we can pass the requestType to `extractMeta`
+   */
+  extract: function(store, type, payload, id, requestType) {
+    payload = this.extractMeta(store, type, payload, requestType);
+
+    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
+    return this[specificExtract](store, type, payload, id, requestType);
   },
 
   extractSingle: function(store, primaryType, rawPayload, recordId) {
