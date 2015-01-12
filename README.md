@@ -1,11 +1,12 @@
-[![Build
-Status](https://travis-ci.org/201-created/ember-data-hal-9000.svg?branch=master)](https://travis-ci.org/201-created/ember-data-hal-9000)
-[![Code Climate](https://codeclimate.com/github/201-created/ember-data-hal-9000/badges/gpa.svg)](https://codeclimate.com/github/201-created/ember-data-hal-9000)
-
 # Ember-data-hal-9000
 
 An ember-data adapter for HAL-style APIs.
 See the [IETF HAL Spec](https://tools.ietf.org/html/draft-kelly-json-hal-06) or [this HAL document](http://stateless.co/hal_specification.html) for more info on HAL.
+
+[![Build
+Status](https://travis-ci.org/201-created/ember-data-hal-9000.svg?branch=master)](https://travis-ci.org/201-created/ember-data-hal-9000)
+[![Code Climate](https://codeclimate.com/github/201-created/ember-data-hal-9000/badges/gpa.svg)](https://codeclimate.com/github/201-created/ember-data-hal-9000)
+
 
 ## Usage
 
