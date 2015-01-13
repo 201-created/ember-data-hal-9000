@@ -32,6 +32,55 @@ import HalSerializer from "ember-data-hal-9000/serialzer";
 export default HalSerializer.extend();
 ```
 
+### Sideloading
+
+HAL specifies that the API should return `_embedded` values for
+associations. The HAL serializer will restructure incoming JSON payloads
+to turn these back into the format that ember-data expects for
+sideloads. It will restructure arbitrarily deeply nested embeds, and it
+will delete `_links` keys when they match embedded properties. Example:
+
+```
+# GET /users/1
+{
+  id: 1,
+  name: 'the user',
+  _links: {
+    self: { href: '/users/1' },
+    pet:  { href: '/users/1/pet' }
+  },
+  _embedded: {
+    pet: {
+      id: 'pet-2',
+      name: 'fido'
+    }
+  }
+}
+
+# The HAL serializer will restructure this JSON like so:
+{
+  user: {
+    id: 1,
+    name: 'the user',
+    pet: 'pet-2'
+  },
+  pets: [{
+    id: 'pet-2',
+    name: 'fido'
+  }],
+  links: {
+    self: '/users/1'
+    #  <-- note 'pet' link is deleted since the user's pet was embedded
+  }
+}
+
+# This code in your route will work.
+# The HAL serializer will re
+store.get('user', 1).then(function(user){
+  return user.get('pet'); // ember-data will use the sideloaded pet and will not GET /users/1/pet
+});
+```
+
 ### Meta data
 
 The HAL spec mentions that information about a collection resource can
@@ -113,30 +162,7 @@ Note that when a singular resource response includes an embedded
 resource, the HAL adapter will sideload that embedded resource and
 *delete* the link for that resource, if there is one (otherwise
 ember-data will eagerly follow the link when you `get` the associated
-resource). Example:
-
-```
-# GET /users/1
-{
-  id: 1,
-  name: 'the user',
-  _links: {
-    self: { href: '/users/1' },
-    pet:  { href: '/users/1/pet' }
-  },
-  _embedded: {
-    pet: {
-      id: 2,
-      name: 'fido'
-    }
-  }
-}
-
-# This code in your route will work
-store.get('user', 1).then(function(user){
-  return user.get('pet'); // ember-data will use the sideloaded pet and will not GET /users/1/pet
-});
-```
+resource). See the example above in the section on sideloading.
 
 ## Running Tests
 

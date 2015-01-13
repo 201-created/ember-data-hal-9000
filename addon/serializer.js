@@ -114,7 +114,6 @@ export default DS.ActiveModelSerializer.extend({
 
     Ember.keys(links).forEach(function(link){
       if (link === 'self') { return; }
-
       // Do not include a link for a property that already
       // exists on the hash, because Ember-Data will fetch that
       // resource by the link instead of using the included data
