@@ -11,6 +11,19 @@ var halReservedKeys = ['_embedded', '_links'];
 
 var reservedKeys = halReservedKeys.concat(['meta']);
 
+function extractLinksIntoMeta(payload, meta){
+  var links = payload._links;
+  if (links) {
+    meta.links = {};
+
+    Ember.keys(links).forEach(function(key){
+      meta.links[key] = links[key].href;
+    });
+  }
+
+  return meta;
+}
+
 export default DS.ActiveModelSerializer.extend({
   serializeIntoHash: function(hash, type, record, options){
     var serialized = this.serialize(record, options);
@@ -43,8 +56,8 @@ export default DS.ActiveModelSerializer.extend({
     var requestType = this.__requestType;
 
     if ( findManyRequestTypes.indexOf(requestType) > -1 ) {
-
       var meta = {};
+
       Ember.keys(payload).forEach(function(key){
         if (reservedKeys.indexOf(key) > -1) { return; }
 
@@ -52,7 +65,8 @@ export default DS.ActiveModelSerializer.extend({
         delete payload[key];
       });
 
-      // set the metadata
+      meta = extractLinksIntoMeta(payload, meta);
+
       store.metaForType(type, meta);
     }
 

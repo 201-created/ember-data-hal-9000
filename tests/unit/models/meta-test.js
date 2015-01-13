@@ -23,9 +23,6 @@ test('loads meta data from top-level non-reserved keys for collection resources'
       return [200, {}, {
         page: 1,
         total_pages: 2,
-        _links: {
-          self: { href: '/mooses' }
-        },
         _embedded: {
           mooses: [{
             id: 'moose-9000',
@@ -56,6 +53,32 @@ test('loads meta data from explicit `meta` key for collections', function(){
           page: 1,
           total_pages: 2,
         },
+        _embedded: {
+          mooses: [{
+            id: 'moose-9000',
+            _links: {
+              self: {
+                href: "http://example.com/mooses/moose-9000"
+              }
+            }
+          }]
+        }
+      }];
+    });
+  });
+
+  var store = this.store();
+  return store.find('moose').then(function(mooses){
+    var meta = store.metadataFor('moose');
+
+    deepEqual(meta, {page: 1, total_pages: 2});
+  });
+});
+
+test('sets links as meta data for collections', function(){
+  server = new Pretender(function(){
+    this.get('/mooses', function(){
+      return [200, {}, {
         _links: {
           self: { href: '/mooses' }
         },
@@ -77,7 +100,7 @@ test('loads meta data from explicit `meta` key for collections', function(){
   return store.find('moose').then(function(mooses){
     var meta = store.metadataFor('moose');
 
-    deepEqual(meta, {page: 1, total_pages: 2});
+    deepEqual(meta, {links: {self: '/mooses'}});
   });
 });
 
