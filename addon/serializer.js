@@ -20,12 +20,12 @@ export default DS.ActiveModelSerializer.extend({
   },
 
   /*
-   pass `requestType` to extractMeta so we know if we are
-   dealing with a list resource (i.e., GET /users) which will
+   `__requestType` is used to know if we are
+   dealing with a list resource (i.e., GET /users) which may
    have meta data in the root of the payload, i.e.:
    {
-     page: 1,
-     total_pages: 5,
+     page: 1,                // <-- metadata
+     total_pages: 5,         // <-- metadata
      _embedded: {
        users: [{...}, ...]
      }
@@ -39,7 +39,8 @@ export default DS.ActiveModelSerializer.extend({
 
    @return {Object} The payload, modified to remove metadata
   */
-  extractMeta: function(store, type, payload, requestType){
+  extractMeta: function(store, type, payload){
+    var requestType = this.__requestType;
 
     if ( findManyRequestTypes.indexOf(requestType) > -1 ) {
 
@@ -61,13 +62,12 @@ export default DS.ActiveModelSerializer.extend({
   },
 
   /*
-   * Override `extract` so we can pass the requestType to `extractMeta`
+   * Override `extract` so we can store the requestType for extractMeta
    */
   extract: function(store, type, payload, id, requestType) {
-    payload = this.extractMeta(store, type, payload, requestType);
+    this.__requestType = requestType; // used by `extractMeta`
 
-    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
-    return this[specificExtract](store, type, payload, id, requestType);
+    return this._super(store, type, payload, id, requestType);
   },
 
   extractSingle: function(store, primaryType, rawPayload, recordId) {
