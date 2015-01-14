@@ -37,8 +37,6 @@ test('embedded single objects are replaced by ids and sideloaded', function(){
 
   var extracted = new EmbedExtractor(raw).extractSingle('user');
 
-  console.log('extracted',extracted);
-
   deepEqual(extracted, {
     user: {
       id: 1,

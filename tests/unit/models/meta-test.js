@@ -75,13 +75,14 @@ test('loads meta data from explicit `meta` key for collections', function(){
   });
 });
 
-test('sets links as meta data for collections', function(){
+test('includes links in meta data for collections', function(){
   server = new Pretender(function(){
     this.get('/mooses', function(){
       return [200, {}, {
         _links: {
           self: { href: '/mooses' }
         },
+        some_meta_val: 42,
         _embedded: {
           mooses: [{
             id: 'moose-9000',
@@ -100,7 +101,9 @@ test('sets links as meta data for collections', function(){
   return store.find('moose').then(function(mooses){
     var meta = store.metadataFor('moose');
 
-    deepEqual(meta, {links: {self: '/mooses'}});
+    deepEqual(meta,
+              {links: {self: '/mooses'},
+               some_meta_val: 42});
   });
 });
 
