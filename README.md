@@ -32,6 +32,8 @@ import HalSerializer from "ember-data-hal-9000/serialzer";
 export default HalSerializer.extend();
 ```
 
+Tested with Ember Data versions 1.0.0-beta.11 through 1.0.0-beta.14.1
+
 ### Sideloading
 
 HAL specifies that the API should return `_embedded` values for
@@ -62,7 +64,7 @@ will delete `_links` keys when they match embedded properties. Example:
   user: {
     id: 1,
     name: 'the user',
-    pet: 'pet-2'
+    pet: 'pet-2'      // <-- adds the 'pet' property to user, using the pet id value
   },
   pets: [{
     id: 'pet-2',
@@ -70,12 +72,11 @@ will delete `_links` keys when they match embedded properties. Example:
   }],
   links: {
     self: '/users/1'
-    #  <-- note 'pet' link is deleted since the user's pet was embedded
+    //  <-- note 'pet' link is deleted since the user's pet was embedded
   }
 }
 
 # This code in your route will work.
-# The HAL serializer will re
 store.get('user', 1).then(function(user){
   return user.get('pet'); // ember-data will use the sideloaded pet and will not GET /users/1/pet
 });
