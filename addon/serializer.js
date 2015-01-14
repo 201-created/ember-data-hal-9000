@@ -24,6 +24,14 @@ function extractLinksIntoMeta(payload, meta){
   return meta;
 }
 
+function setMeta(store, type, meta){
+  if (store.setMetadataFor) { // Ember Data after 1.14.1 adds this method
+    store.setMetadataFor(type, meta);
+  } else {
+    store.metaForType(type, meta);
+  }
+}
+
 export default DS.ActiveModelSerializer.extend({
   serializeIntoHash: function(hash, type, record, options){
     var serialized = this.serialize(record, options);
@@ -67,7 +75,7 @@ export default DS.ActiveModelSerializer.extend({
 
       meta = extractLinksIntoMeta(payload, meta);
 
-      store.metaForType(type, meta);
+      setMeta(store, type, meta);
     }
 
     this._super(store, type, payload);
