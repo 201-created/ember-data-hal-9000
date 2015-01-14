@@ -390,12 +390,12 @@ test('find one: loads singly embedded records', function(){
 
   return Ember.run(function(){
     return store.find('owner', 'owner-1').then(function(owner){
-      ok(owner, 'loads owner');
+      ok(!!owner, 'loads owner');
       equal(owner.get('name'), 'owner #1');
 
       return owner.get('team');
     }).then(function(team){
-      ok(team, 'loads team');
+      ok(!!team, 'loads team');
       equal(team.get('name'), 'winning team');
     });
   });

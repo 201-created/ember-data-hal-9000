@@ -69,7 +69,7 @@ test('car#hasMany wheels loads wheels from link', function(){
     return store.find('car', 1).then(function(car){
       return car.get('wheels');
     }).then(function(wheels){
-      ok(wheels, 'gets wheels');
+      ok(!!wheels, 'gets wheels');
       equal(wheels.get('length'), 2, 'has 2 wheels');
 
       var wheel = wheels.get('firstObject');
