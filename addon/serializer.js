@@ -93,14 +93,14 @@ export default DS.ActiveModelSerializer.extend({
   },
 
   extractSingle: function(store, primaryType, rawPayload, recordId) {
-    var extracted = new EmbedExtractor(rawPayload).
+    var extracted = new EmbedExtractor(rawPayload, store).
       extractSingle(primaryType.typeKey);
 
     return this._super(store, primaryType, extracted, recordId);
   },
 
   extractArray: function(store, primaryType, rawPayload) {
-    var extracted = new EmbedExtractor(rawPayload).extractArray();
+    var extracted = new EmbedExtractor(rawPayload, store).extractArray();
 
     return this._super(store, primaryType, extracted);
   },
