@@ -4,8 +4,20 @@ import {
 import Ember from "ember";
 import EmbedExtractor from "ember-data-hal-9000/embed-extractor";
 
-
 module('EmbedExtractor - extractSingle');
+
+var mockStore = {
+  adapterFor: function(){
+    return mockAdapter;
+  }
+};
+
+var mockAdapter = {
+  pathForType: function(key){
+    return Ember.Inflector.inflector.pluralize(key);
+  }
+};
+
 
 test('it exists', function(){
   ok(EmbedExtractor, 'it exists');
@@ -19,8 +31,8 @@ test('puts simple payload in namespace', function(){
     }
   };
 
-  var extracted = new EmbedExtractor(raw).extractSingle('user');
-  deepEqual(extracted, {user: raw});
+  var extracted = new EmbedExtractor(raw, mockStore).extractSingle('user');
+  deepEqual(extracted, {users: [raw]});
 });
 
 test('embedded single objects are replaced by ids and sideloaded', function(){
@@ -35,14 +47,14 @@ test('embedded single objects are replaced by ids and sideloaded', function(){
     }
   };
 
-  var extracted = new EmbedExtractor(raw).extractSingle('user');
+  var extracted = new EmbedExtractor(raw, mockStore).extractSingle('user');
 
   deepEqual(extracted, {
-    user: {
+    users: [{
       id: 1,
       name: 'blah',
       car: 'car-1'
-    },
+    }],
     cars: [{
       id: 'car-1',
       model: 'miata'
@@ -62,14 +74,14 @@ test('embedded arrays of objects are replaced by array of ids and sideloaded', f
     }
   };
 
-  var extracted = new EmbedExtractor(raw).extractSingle('user');
+  var extracted = new EmbedExtractor(raw, mockStore).extractSingle('user');
 
   deepEqual(extracted, {
-    user: {
+    users: [{
       id: 1,
       name: 'blah',
       cars: ['car-1']
-    },
+    }],
     cars: [{
       id: 'car-1',
       model: 'miata'
@@ -102,14 +114,14 @@ test('deeply embedded objects and arrays are replaced by array/single ids and si
     }
   };
 
-  var extracted = new EmbedExtractor(raw).extractSingle('user');
+  var extracted = new EmbedExtractor(raw, mockStore).extractSingle('user');
 
   deepEqual(extracted, {
-    user: {
+    users: [{
       id: 1,
       name: 'blah',
       cars: ['car-1']
-    },
+    }],
     drivers: [{
       id: 'd1',
       name: 'driver 1',

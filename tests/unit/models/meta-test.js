@@ -109,7 +109,7 @@ test('includes links in meta data for collections', function(){
 
 test('loads meta data from explicit `meta` key for single resources', function(){
   server = new Pretender(function(){
-    this.get('/mooses/1', function(){
+    this.get('/mooses/moose-9000', function(){
       return [200, {}, {
         meta: {
           page: 1,
@@ -125,7 +125,7 @@ test('loads meta data from explicit `meta` key for single resources', function()
 
   var store = this.store();
   return Ember.run(function(){
-    store.find('moose', 1).then(function(mooses){
+    store.find('moose', 'moose-9000').then(function(mooses){
       var meta = store.metadataFor('moose');
 
       deepEqual(meta, {page: 1, total_pages: 2});

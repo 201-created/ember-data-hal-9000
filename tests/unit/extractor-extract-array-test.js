@@ -7,6 +7,18 @@ import EmbedExtractor from "ember-data-hal-9000/embed-extractor";
 
 module('EmbedExtractor - extractArray');
 
+var mockStore = {
+  adapterFor: function(){
+    return mockAdapter;
+  }
+};
+
+var mockAdapter = {
+  pathForType: function(key){
+    return Ember.Inflector.inflector.pluralize(key);
+  }
+};
+
 test('moves array embeds out of _embedded and into top-level', function(){
   var raw = {
     _embedded: {
@@ -17,7 +29,7 @@ test('moves array embeds out of _embedded and into top-level', function(){
     }
   };
 
-  var extracted = new EmbedExtractor(raw).extractArray();
+  var extracted = new EmbedExtractor(raw, mockStore).extractArray();
 
   deepEqual(extracted, {
     users: [{
@@ -47,7 +59,7 @@ test('deeply embedded', function(){
     }
   };
 
-  var extracted = new EmbedExtractor(raw).extractArray();
+  var extracted = new EmbedExtractor(raw, mockStore).extractArray();
 
   deepEqual(extracted, {
     users: [{

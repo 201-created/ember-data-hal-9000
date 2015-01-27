@@ -1,48 +1,53 @@
 import Ember from "ember";
 
-function EmbedExtractor(raw){
+function EmbedExtractor(raw, store){
   this.raw = raw;
-  this.sideloads = {};
+  this.store = store;
+  this.result = {};
 }
 
 EmbedExtractor.prototype.extractArray = function(){
-  var raw = this.raw;
+  this.extractEmbedded(this.raw);
 
-  var result = this.extractEmbedded(raw);
-
-  var extractor = this;
-
-  Ember.keys(extractor.sideloads).forEach(function(key){
-    result[key] = extractor.sideloads[key];
-  });
-
-  return result;
+  return this.result;
 };
 
-EmbedExtractor.prototype.extractSingle = function(namespace){
-  var result = {};
-  var extractor = this;
+EmbedExtractor.prototype.extractSingle = function(typeKey){
+  var value = this.extractEmbedded(this.raw);
+  this.addValueOfType(value, typeKey); // TODO This can put the primary object last in the sideload result set
 
-  result[namespace] = this.extractEmbedded(this.raw);
-
-  Ember.keys(extractor.sideloads).forEach(function(key){
-    result[key] = extractor.sideloads[key];
-  });
-
-  return result;
+  return this.result;
 };
 
-EmbedExtractor.prototype.addSideload = function(key, object){
-  key = Ember.Inflector.inflector.pluralize(key);
-
-  if (!this.sideloads[key]) { this.sideloads[key] = []; }
-
-  this.sideloads[key].push(object);
+EmbedExtractor.prototype.adapterFor = function(type){
+  return this.store.adapterFor(type);
 };
 
+// Add a value of the given type to the result set.
+// This is called when `extractEmbedded` comes across an embedded object
+// that should be sideloaded, and when `extractSingle` wants to add its
+// primary type to a top-level array.
+EmbedExtractor.prototype.addValueOfType = function(value, typeKey) {
+  var pathForType = this.store.adapterFor(typeKey).pathForType(typeKey);
+
+  if (!this.result[pathForType]) {
+    this.result[pathForType] = [];
+  }
+  this.result[pathForType].push(value);
+};
+
+// Loops through _embedded properties, extracting their ids and
+// setting values on `hash` to match those ids.
+// For instance:
+// ```
+//   var hash = {id: 1, name:'user', _embedded: { pet: { id: 1, name: 'fido'} } };
+// ```
+// extractEmbedded will addValueOfType with the pet, and set hash.pet = 1;
+//
+// Returns the modified hash
 EmbedExtractor.prototype.extractEmbedded = function(hash){
   var extractor = this;
-  var result = hash;
+  var result   = hash;
   var embedded = hash._embedded || {};
   delete result._embedded;
 
@@ -57,9 +62,10 @@ EmbedExtractor.prototype.extractEmbedded = function(hash){
         var id = extracted.id;
         embeddedIds.push(id);
 
-        extractor.addSideload(key, extracted);
+        extractor.addValueOfType(extracted, key);
       });
 
+      // TODO should be `keyForRelationship` (to determine if it should be, e.g., "modelName_ids")
       result[key] = embeddedIds;
 
     } else {
@@ -67,7 +73,7 @@ EmbedExtractor.prototype.extractEmbedded = function(hash){
       var id = value.id;
       result[key] = id;
 
-      extractor.addSideload(key, value);
+      extractor.addValueOfType(value, key);
     }
   });
 
