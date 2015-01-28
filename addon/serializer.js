@@ -33,13 +33,6 @@ function setMeta(store, type, meta){
 }
 
 export default DS.ActiveModelSerializer.extend({
-  serializeIntoHash: function(hash, type, record, options){
-    var serialized = this.serialize(record, options);
-    Ember.keys(serialized).forEach(function(key){
-      hash[key] = serialized[key];
-    });
-  },
-
   /*
    `__requestType` is used to know if we are
    dealing with a list resource (i.e., GET /users) which may

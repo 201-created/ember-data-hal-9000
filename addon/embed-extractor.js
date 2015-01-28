@@ -86,7 +86,8 @@ EmbedExtractor.prototype.extractEmbedded = function(hash, primaryType, primarySe
 
     } else {
       value = extractor.extractEmbedded(value, type, typeSerializer);
-      id = value.id; // TODO ember data provides a way of overriding the id property, right?
+      // TODO use the serializer's 'primaryKey' property instead
+      id = value.id;
       result[key] = id;
 
       extractor.addValueOfType(value, type);

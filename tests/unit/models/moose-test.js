@@ -102,36 +102,3 @@ test('loads single HAL formatted record', function(){
     });
   });
 });
-
-test('can create a new record', function(){
-  expect(4);
-
-  server = new Pretender(function(){
-    this.post('/mooses', function(request){
-      var json = JSON.parse(request.requestBody);
-      deepEqual(json, {name: 'Marcy'}, 'POSTs correct JSON');
-      return [200, {}, {
-        _links: {
-          self: {
-            href: "http://example.com/mooses/moose-9000"
-          }
-        },
-        id: 'moose-9000',
-        name: 'Marcy'
-      }];
-    });
-  });
-
-  var store = this.store();
-
-  return Ember.run(function(){
-    var mooseData = {name: 'Marcy'};
-    var moose = store.createRecord('moose', mooseData);
-
-    return moose.save().then(function(moose){
-      ok(moose, 'record created');
-      ok(moose.get('id'), 'moose-9000', 'record loaded');
-      ok(moose.get('name'), 'Marcy', 'record has an attribute');
-    });
-  });
-});
