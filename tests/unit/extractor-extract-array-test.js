@@ -10,12 +10,30 @@ module('EmbedExtractor - extractArray');
 var mockStore = {
   adapterFor: function(){
     return mockAdapter;
+  },
+
+  modelFor: function(typeKey){
+    return {typeKey:typeKey};
+  },
+
+  modelFactoryFor: function(){
+    return true;
+  },
+
+  serializerFor: function(){
+    return mockSerializer;
   }
 };
 
 var mockAdapter = {
-  pathForType: function(key){
-    return Ember.Inflector.inflector.pluralize(key);
+  pathForType: function(typeKey){
+    return Ember.Inflector.inflector.pluralize(typeKey);
+  }
+};
+
+var mockSerializer = {
+  typeForRoot: function(typeKey){
+    return Ember.Inflector.inflector.singularize(typeKey);
   }
 };
 
@@ -29,7 +47,10 @@ test('moves array embeds out of _embedded and into top-level', function(){
     }
   };
 
-  var extracted = new EmbedExtractor(raw, mockStore).extractArray();
+  var mockType = {typeKey: 'user'};
+
+  var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
+    extractArray(mockType);
 
   deepEqual(extracted, {
     users: [{
@@ -59,7 +80,9 @@ test('deeply embedded', function(){
     }
   };
 
-  var extracted = new EmbedExtractor(raw, mockStore).extractArray();
+  var mockType = {typeKey: 'user'};
+  var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
+    extractArray(mockType);
 
   deepEqual(extracted, {
     users: [{

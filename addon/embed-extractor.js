@@ -1,34 +1,39 @@
 import Ember from "ember";
 
-function EmbedExtractor(raw, store){
+function EmbedExtractor(raw, store, primarySerializer){
   this.raw = raw;
   this.store = store;
   this.result = {};
+  this.serializer = primarySerializer;
 }
 
-EmbedExtractor.prototype.extractArray = function(){
-  this.extractEmbedded(this.raw);
+EmbedExtractor.prototype.extractArray = function(primaryType){
+  // initialize result set with primary type
+  this.result[ this.pathForType(primaryType) ] = [];
+
+  this.extractEmbedded(this.raw, primaryType, this.serializer);
 
   return this.result;
 };
 
-EmbedExtractor.prototype.extractSingle = function(typeKey){
-  var value = this.extractEmbedded(this.raw);
-  this.addValueOfType(value, typeKey); // TODO This can put the primary object last in the sideload result set
+// type is a DS.Model
+EmbedExtractor.prototype.extractSingle = function(type){
+  var value = this.extractEmbedded(this.raw, type, this.serializer);
+  this.addValueOfType(value, type); // TODO This can put the primary object last in the sideload result set, that might be bad
 
   return this.result;
 };
 
-EmbedExtractor.prototype.adapterFor = function(type){
-  return this.store.adapterFor(type);
+EmbedExtractor.prototype.pathForType = function(type){
+  return this.store.adapterFor(type).pathForType(type.typeKey);
 };
 
 // Add a value of the given type to the result set.
 // This is called when `extractEmbedded` comes across an embedded object
 // that should be sideloaded, and when `extractSingle` wants to add its
 // primary type to a top-level array.
-EmbedExtractor.prototype.addValueOfType = function(value, typeKey) {
-  var pathForType = this.store.adapterFor(typeKey).pathForType(typeKey);
+EmbedExtractor.prototype.addValueOfType = function(value, type) {
+  var pathForType = this.store.adapterFor(type).pathForType(type.typeKey);
 
   if (!this.result[pathForType]) {
     this.result[pathForType] = [];
@@ -45,37 +50,49 @@ EmbedExtractor.prototype.addValueOfType = function(value, typeKey) {
 // extractEmbedded will addValueOfType with the pet, and set hash.pet = 1;
 //
 // Returns the modified hash
-EmbedExtractor.prototype.extractEmbedded = function(hash){
+EmbedExtractor.prototype.extractEmbedded = function(hash, primaryType, primarySerializer){
   var extractor = this;
   var result   = hash;
   var embedded = hash._embedded || {};
   delete result._embedded;
 
-  Ember.keys(embedded).forEach(function(key){
-    var value = embedded[key];
+  var value, id;
+
+  for (var key in embedded) {
+    var typeKey = primarySerializer.typeForRoot(key);
+    if (!this.store.modelFactoryFor(typeKey)) {
+      Ember.warn("Skipping unknown type: " + key);
+      continue;
+    }
+    var type           = this.store.modelFor(typeKey);
+    var typeSerializer = this.store.serializerFor(type);
+
+    value = embedded[key];
 
     if (Ember.isArray(value)) {
       var embeddedIds = [];
 
-      value.forEach(function(embeddedObject){
-        var extracted = extractor.extractEmbedded(embeddedObject);
-        var id = extracted.id;
+      for (var i=0, len=value.length; i < len; i++) {
+        var embeddedObject = value[i];
+        var extracted = extractor.extractEmbedded(embeddedObject, type, typeSerializer);
+        id = extracted.id;
         embeddedIds.push(id);
 
-        extractor.addValueOfType(extracted, key);
-      });
+        extractor.addValueOfType(extracted, type);
+      }
 
       // TODO should be `keyForRelationship` (to determine if it should be, e.g., "modelName_ids")
       result[key] = embeddedIds;
 
     } else {
-      value = extractor.extractEmbedded(value);
-      var id = value.id;
+      value = extractor.extractEmbedded(value, type, typeSerializer);
+      // TODO use the serializer's 'primaryKey' property instead
+      id = value.id;
       result[key] = id;
 
-      extractor.addValueOfType(value, key);
+      extractor.addValueOfType(value, type);
     }
-  });
+  }
 
   return result;
 };

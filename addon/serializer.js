@@ -33,13 +33,6 @@ function setMeta(store, type, meta){
 }
 
 export default DS.ActiveModelSerializer.extend({
-  serializeIntoHash: function(hash, type, record, options){
-    var serialized = this.serialize(record, options);
-    Ember.keys(serialized).forEach(function(key){
-      hash[key] = serialized[key];
-    });
-  },
-
   /*
    `__requestType` is used to know if we are
    dealing with a list resource (i.e., GET /users) which may
@@ -92,15 +85,34 @@ export default DS.ActiveModelSerializer.extend({
     return this._super(store, type, payload, id, requestType);
   },
 
+  /**
+   * https://github.com/emberjs/data/blob/48c02654e8a524b390d1a28975416ee73f912d9e/packages/ember-data/lib/serializers/rest_serializer.js#L263
+    @method extractSingle
+    @param {DS.Store} store
+    @param {subclass of DS.Model} primaryType
+    @param {Object} payload
+    @param {String} recordId
+    @return {Object} the primary response to the original request
+   */
   extractSingle: function(store, primaryType, rawPayload, recordId) {
-    var extracted = new EmbedExtractor(rawPayload, store).
-      extractSingle(primaryType.typeKey);
+    var extracted = new EmbedExtractor(rawPayload, store, this).
+      extractSingle(primaryType);
 
     return this._super(store, primaryType, extracted, recordId);
   },
 
+  /*
+   * https://github.com/emberjs/data/blob/48c02654e8a524b390d1a28975416ee73f912d9e/packages/ember-data/lib/serializers/rest_serializer.js#L417
+    @method extractArray
+    @param {DS.Store} store
+    @param {subclass of DS.Model} primaryType
+    @param {Object} payload
+    @return {Array} The primary array that was returned in response
+      to the original query.
+  */
   extractArray: function(store, primaryType, rawPayload) {
-    var extracted = new EmbedExtractor(rawPayload, store).extractArray();
+    var extracted = new EmbedExtractor(rawPayload, store, this).
+      extractArray(primaryType);
 
     return this._super(store, primaryType, extracted);
   },
