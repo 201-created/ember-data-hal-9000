@@ -8,6 +8,9 @@ function EmbedExtractor(raw, store, primarySerializer){
 }
 
 EmbedExtractor.prototype.extractArray = function(primaryType){
+  // initialize result set with primary type
+  this.result[ this.pathForType(primaryType) ] = [];
+
   this.extractEmbedded(this.raw, primaryType, this.serializer);
 
   return this.result;
@@ -22,8 +25,7 @@ EmbedExtractor.prototype.extractSingle = function(type){
 };
 
 EmbedExtractor.prototype.pathForType = function(type){
-  var model = this.modelFor(type);
-  return this.store.adapterFor(model).pathForType(model.typeKey);
+  return this.store.adapterFor(type).pathForType(type.typeKey);
 };
 
 // Add a value of the given type to the result set.
