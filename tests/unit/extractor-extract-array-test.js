@@ -13,7 +13,10 @@ var mockStore = {
   },
 
   modelFor: function(typeKey){
-    return {typeKey:typeKey};
+    return {
+      typeKey: typeKey,
+      eachRelationship: Ember.K
+    };
   },
 
   modelFactoryFor: function(){
@@ -37,6 +40,11 @@ var mockSerializer = {
   }
 };
 
+var mockUserType = {
+  typeKey: 'user',
+  eachRelationship: Ember.K
+};
+
 test('moves array embeds out of _embedded and into top-level', function(){
   var raw = {
     _embedded: {
@@ -47,10 +55,8 @@ test('moves array embeds out of _embedded and into top-level', function(){
     }
   };
 
-  var mockType = {typeKey: 'user'};
-
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractArray(mockType);
+    extractArray(mockUserType);
 
   deepEqual(extracted, {
     users: [{
@@ -80,9 +86,8 @@ test('deeply embedded', function(){
     }
   };
 
-  var mockType = {typeKey: 'user'};
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractArray(mockType);
+    extractArray(mockUserType);
 
   deepEqual(extracted, {
     users: [{

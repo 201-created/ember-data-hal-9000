@@ -12,7 +12,10 @@ var mockStore = {
   },
 
   modelFor: function(typeKey){
-    return {typeKey:typeKey};
+    return {
+      typeKey: typeKey,
+      eachRelationship: Ember.K
+    };
   },
 
   modelFactoryFor: function(){
@@ -36,6 +39,12 @@ var mockSerializer = {
   }
 };
 
+var mockUserType = {
+  typeKey: 'user',
+  eachRelationship: Ember.K
+};
+
+
 
 test('it exists', function(){
   ok(EmbedExtractor, 'it exists');
@@ -49,9 +58,8 @@ test('puts simple payload in namespace', function(){
     }
   };
 
-  var mockType = {typeKey: 'user'};
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractSingle(mockType);
+    extractSingle(mockUserType);
   deepEqual(extracted, {users: [raw]});
 });
 
@@ -67,9 +75,8 @@ test('embedded single objects are replaced by ids and sideloaded', function(){
     }
   };
 
-  var mockType = {typeKey: 'user'};
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractSingle(mockType);
+    extractSingle(mockUserType);
 
   deepEqual(extracted, {
     users: [{
@@ -96,9 +103,8 @@ test('embedded arrays of objects are replaced by array of ids and sideloaded', f
     }
   };
 
-  var mockType = {typeKey: 'user'};
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractSingle(mockType);
+    extractSingle(mockUserType);
 
   deepEqual(extracted, {
     users: [{
@@ -138,9 +144,8 @@ test('deeply embedded objects and arrays are replaced by array/single ids and si
     }
   };
 
-  var mockType = {typeKey: 'user'};
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractSingle(mockType);
+    extractSingle(mockUserType);
 
   deepEqual(extracted, {
     users: [{

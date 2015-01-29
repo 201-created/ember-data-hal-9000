@@ -360,6 +360,126 @@ test('findMany: handles the same object embedded for different records', functio
   });
 });
 
+test('find many: loads embedded array of records with a custom name', function(){
+  server = new Pretender(function(){
+    this.get('/owners', function(){
+      return [200, {}, {
+        _embedded: {
+          owners: [{
+            id: "owner-1",
+            name: 'owner #1',
+            _embedded: {
+              amazing_teams: [{
+                id: 'team1',
+                name: 'winning team',
+                _links: { self: { href: "/teams/team1" } }
+              },{
+                id: 'team2',
+                name: 'losing team',
+                _links: { self: { href: "/teams/team2" } }
+              }]
+            }
+          }, {
+            id: "owner2",
+            name: 'owner #2',
+            _embedded: {
+              amazing_teams: [{
+                id: 'team3',
+                name: 'team#3',
+                _links: { self: { href: "/teams/team3" } }
+              },{
+                id: 'team4',
+                name: 'team#4',
+                _links: { self: { href: "/teams/team4" } }
+              }]
+            }
+          }]
+        }
+      }];
+    });
+  });
+
+  server.unhandledRequest = function(verb, path, request){
+    console.error('unhandled request');
+    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+  };
+
+  var store = this.store();
+  var owners;
+
+  return Ember.run(function(){
+    return store.find('owner').then(function(_owners){
+      owners = _owners;
+
+      equal(owners.get('length'), 2, 'gets 2 owners');
+
+      return owners.objectAt(0).get('amazingTeams');
+    }).then(function(teams){
+      ok(!!teams, 'loads amazing teams for first owner');
+
+      equal(teams.get('length'), 2, 'gets all amazing teams');
+      equal(teams.get('firstObject.name'), 'winning team');
+      equal(teams.get('lastObject.name'), 'losing team');
+
+      return owners.objectAt(1).get('amazingTeams');
+    }).then(function(teams){
+      ok(!!teams, 'loads amazing teams for second owner');
+
+      equal(teams.get('length'), 2, 'gets all amazing teams');
+      equal(teams.get('firstObject.name'), 'team#3');
+      equal(teams.get('lastObject.name'), 'team#4');
+    });
+  });
+});
+
+
+test('find one: loads embedded array of records with a custom name', function(){
+  server = new Pretender(function(){
+    this.get('/owners/owner-1', function(){
+      return [200, {}, {
+        id: "owner-1",
+        name: 'owner #1',
+        _embedded: {
+          amazing_teams: [{
+            id: 'team-1',
+            name: 'winning team',
+            _links: { self: { href: "/teams/team-1" } }
+          },{
+            id: 'team-2',
+            name: 'losing team',
+            _links: { self: { href: "/teams/team-2" } }
+          }]
+        }
+      }];
+    });
+  });
+
+  server.unhandledRequest = function(verb, path, request){
+    console.error('unhandled request');
+    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+  };
+
+  var store = this.store();
+  var owner;
+
+  return Ember.run(function(){
+    return store.find('owner', 'owner-1').then(function(_owner){
+      owner = _owner;
+
+      ok(!!owner, 'loads owner');
+      equal(owner.get('name'), 'owner #1');
+
+      return owner.get('amazingTeams');
+    }).then(function(teams){
+      ok(!!teams, 'loads amazing team');
+
+      equal(teams.get('length'), 2, 'gets all amazing teams');
+      equal(teams.get('firstObject.name'), 'winning team');
+      equal(teams.get('lastObject.name'), 'losing team');
+    });
+  });
+});
+
 test('find one: loads singly embedded records', function(){
   server = new Pretender(function(){
     this.get('/owners/owner-1', function(){
@@ -396,6 +516,56 @@ test('find one: loads singly embedded records', function(){
       return owner.get('team');
     }).then(function(team){
       ok(!!team, 'loads team');
+      equal(team.get('name'), 'winning team');
+    });
+  });
+});
+
+test('find one: loads an embedded record with a custom name', function(){
+  server = new Pretender(function(){
+    this.get('/owners/owner-1', function(){
+      return [200, {}, {
+        id: "owner-1",
+        name: 'owner #1',
+        _embedded: {
+          favorite_team: {
+            id: 'team-1',
+            name: 'winning team',
+            _links: { self: { href: "/teams/team-1" } }
+          },
+          team: {
+            id: 'team-2',
+            name: 'losing team',
+            _links: { self: { href: "/teams/team-2" } }
+          }
+        }
+      }];
+    });
+  });
+
+  server.unhandledRequest = function(verb, path, request){
+    console.error('unhandled request');
+    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+  };
+
+  var store = this.store();
+  var owner;
+
+  return Ember.run(function(){
+    return store.find('owner', 'owner-1').then(function(_owner){
+      owner = _owner;
+
+      ok(!!owner, 'loads owner');
+      equal(owner.get('name'), 'owner #1');
+
+      return owner.get('team');
+    }).then(function(team){
+      ok(!!team, 'loads team');
+      equal(team.get('name'), 'losing team');
+
+      return owner.get('favoriteTeam');
+    }).then(function(team){
+      ok(!!team, 'loads favorite team');
       equal(team.get('name'), 'winning team');
     });
   });

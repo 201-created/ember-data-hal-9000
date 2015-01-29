@@ -56,15 +56,31 @@ EmbedExtractor.prototype.extractEmbedded = function(hash, primaryType, primarySe
   var embedded = hash._embedded || {};
   delete result._embedded;
 
-  var value, id;
+  var value, id, type, typeKey, propName;
 
   for (var key in embedded) {
-    var typeKey = primarySerializer.typeForRoot(key);
-    if (!this.store.modelFactoryFor(typeKey)) {
-      Ember.warn("Skipping unknown type: " + key);
-      continue;
+    type = null;
+    typeKey = null;
+    propName = key;
+
+    typeKey = primarySerializer.typeForRoot(key);
+
+    /*jshint loopfunc:true*/
+    primaryType.eachRelationship(function(name, relationship){
+      if (primarySerializer.typeForRoot(name) === typeKey){
+        type = relationship.type;
+        propName = relationship.key;
+      }
+    });
+
+    if (!type) {
+      if (!this.store.modelFactoryFor(typeKey)) {
+        Ember.warn("Skipping unknown type: " + key);
+        continue;
+      }
+      type = this.store.modelFor(typeKey);
     }
-    var type           = this.store.modelFor(typeKey);
+
     var typeSerializer = this.store.serializerFor(type);
 
     value = embedded[key];
@@ -82,13 +98,13 @@ EmbedExtractor.prototype.extractEmbedded = function(hash, primaryType, primarySe
       }
 
       // TODO should be `keyForRelationship` (to determine if it should be, e.g., "modelName_ids")
-      result[key] = embeddedIds;
+      result[propName] = embeddedIds;
 
     } else {
       value = extractor.extractEmbedded(value, type, typeSerializer);
       // TODO use the serializer's 'primaryKey' property instead
       id = value.id;
-      result[key] = id;
+      result[propName] = id;
 
       extractor.addValueOfType(value, type);
     }
