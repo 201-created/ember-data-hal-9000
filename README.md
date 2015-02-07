@@ -28,7 +28,7 @@ export default HalAdapter.extend();
 ```javascript
 // app/serializers/application.js
 
-import HalSerializer from "ember-data-hal-9000/serialzer";
+import HalSerializer from "ember-data-hal-9000/serializer";
 export default HalSerializer.extend();
 ```
 
