@@ -25,7 +25,7 @@ moduleForModel('car', 'Car : hasMany', {
   }
 });
 
-test('car#hasMany wheels loads wheels from link', function(){
+test('car#hasMany wheels loads wheels from link', function(assert){
   var store = this.store();
 
   server = new Pretender(function(){
@@ -62,18 +62,18 @@ test('car#hasMany wheels loads wheels from link', function(){
   });
 
   server.unhandledRequest = function(verb, path, request){
-    ok(false, 'unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'unhandled request for ' + verb + ' ' + path);
   };
 
   return Ember.run(function(){
     return store.find('car', 1).then(function(car){
       return car.get('wheels');
     }).then(function(wheels){
-      ok(!!wheels, 'gets wheels');
-      equal(wheels.get('length'), 2, 'has 2 wheels');
+      assert.ok(!!wheels, 'gets wheels');
+      assert.equal(wheels.get('length'), 2, 'has 2 wheels');
 
       var wheel = wheels.get('firstObject');
-      ok(wheel.get('hasSnowChains'), 'wheel has snow chains');
+      assert.ok(wheel.get('hasSnowChains'), 'wheel has snow chains');
     });
   });
 });

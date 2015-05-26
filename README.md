@@ -32,7 +32,8 @@ import HalSerializer from "ember-data-hal-9000/serializer";
 export default HalSerializer.extend();
 ```
 
-Tested with Ember Data versions 1.0.0-beta.11 through 1.0.0-beta.14.1
+Tested with [Ember Data versions 1.0.0-beta.15 through 1.0.0-beta.18](https://github.com/201-created/ember-data-hal-9000/blob/master/config/ember-try.js).
+Tested with Ember release, beta and canary channels.
 
 ### Sideloading
 
@@ -167,5 +168,5 @@ resource). See the example above in the section on sideloading.
 
 ## Running Tests
 
-* `ember test`
-* `ember test --server`
+* `npm test` # test all scenarios in config/ember-try.js
+* `ember try <scenario-name> test --server` # test a specific scenario

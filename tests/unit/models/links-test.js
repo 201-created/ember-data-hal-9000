@@ -17,7 +17,7 @@ moduleForModel('moose', 'Links', {
   }
 });
 
-test('single resource links are available in model data.links property', function(){
+test('single resource links are available in model data.links property', function(assert){
   server = new Pretender(function(){
     this.get('/mooses/1', function(){
       return [200, {}, {
@@ -35,7 +35,7 @@ test('single resource links are available in model data.links property', functio
     return store.find('moose', 1).then(function(moose){
       var links = moose.get('data.links');
 
-      deepEqual(links, {self: '/mooses/1', cats: '/mooses/1/cats' });
+      assert.deepEqual(links, {self: '/mooses/1', cats: '/mooses/1/cats' });
     });
   });
 });

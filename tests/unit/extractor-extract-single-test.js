@@ -1,10 +1,11 @@
+/* global QUnit */
 import {
   test
 } from "ember-qunit";
 import Ember from "ember";
 import EmbedExtractor from "ember-data-hal-9000/embed-extractor";
 
-module('EmbedExtractor - extractSingle');
+QUnit.module('EmbedExtractor - extractSingle');
 
 var mockStore = {
   adapterFor: function(){
@@ -13,7 +14,7 @@ var mockStore = {
 
   modelFor: function(typeKey){
     return {
-      typeKey: typeKey,
+      modelName: typeKey,
       eachRelationship: Ember.K
     };
   },
@@ -34,23 +35,23 @@ var mockAdapter = {
 };
 
 var mockSerializer = {
-  typeForRoot: function(typeKey){
+  modelNameFromPayloadKey: function(typeKey){
     return Ember.Inflector.inflector.singularize(typeKey);
   }
 };
 
 var mockUserType = {
-  typeKey: 'user',
+  modelName: 'user',
   eachRelationship: Ember.K
 };
 
 
 
-test('it exists', function(){
-  ok(EmbedExtractor, 'it exists');
+test('it exists', function(assert){
+  assert.ok(EmbedExtractor, 'it exists');
 });
 
-test('puts simple payload in namespace', function(){
+test('puts simple payload in namespace', function(assert){
   var raw = {
     id: '1',
     _links: {
@@ -60,10 +61,10 @@ test('puts simple payload in namespace', function(){
 
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
     extractSingle(mockUserType);
-  deepEqual(extracted, {users: [raw]});
+  assert.deepEqual(extracted, {users: [raw]});
 });
 
-test('embedded single objects are replaced by ids and sideloaded', function(){
+test('embedded single objects are replaced by ids and sideloaded', function(assert){
   var raw = {
     id: 1,
     name: 'blah',
@@ -78,7 +79,7 @@ test('embedded single objects are replaced by ids and sideloaded', function(){
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
     extractSingle(mockUserType);
 
-  deepEqual(extracted, {
+  assert.deepEqual(extracted, {
     users: [{
       id: 1,
       name: 'blah',
@@ -91,7 +92,7 @@ test('embedded single objects are replaced by ids and sideloaded', function(){
   });
 });
 
-test('embedded arrays of objects are replaced by array of ids and sideloaded', function(){
+test('embedded arrays of objects are replaced by array of ids and sideloaded', function(assert){
   var raw = {
     id: 1,
     name: 'blah',
@@ -106,7 +107,7 @@ test('embedded arrays of objects are replaced by array of ids and sideloaded', f
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
     extractSingle(mockUserType);
 
-  deepEqual(extracted, {
+  assert.deepEqual(extracted, {
     users: [{
       id: 1,
       name: 'blah',
@@ -119,7 +120,7 @@ test('embedded arrays of objects are replaced by array of ids and sideloaded', f
   });
 });
 
-test('deeply embedded objects and arrays are replaced by array/single ids and sideloaded', function(){
+test('deeply embedded objects and arrays are replaced by array/single ids and sideloaded', function(assert){
   var raw = {
     id: 1,
     name: 'blah',
@@ -147,7 +148,7 @@ test('deeply embedded objects and arrays are replaced by array/single ids and si
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
     extractSingle(mockUserType);
 
-  deepEqual(extracted, {
+  assert.deepEqual(extracted, {
     users: [{
       id: 1,
       name: 'blah',

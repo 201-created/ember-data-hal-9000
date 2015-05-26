@@ -17,7 +17,7 @@ moduleForModel('moose', 'Metadata', {
   }
 });
 
-test('loads meta data from top-level non-reserved keys for collection resources', function(){
+test('loads meta data from top-level non-reserved keys for collection resources', function(assert){
   server = new Pretender(function(){
     this.get('/mooses', function(){
       return [200, {}, {
@@ -41,11 +41,11 @@ test('loads meta data from top-level non-reserved keys for collection resources'
   return store.find('moose').then(function(mooses){
     var meta = store.metadataFor('moose');
 
-    deepEqual(meta, {page: 1, total_pages: 2});
+    assert.deepEqual(meta, {page: 1, total_pages: 2});
   });
 });
 
-test('loads meta data from explicit `meta` key for collections', function(){
+test('loads meta data from explicit `meta` key for collections', function(assert){
   server = new Pretender(function(){
     this.get('/mooses', function(){
       return [200, {}, {
@@ -71,11 +71,11 @@ test('loads meta data from explicit `meta` key for collections', function(){
   return store.find('moose').then(function(mooses){
     var meta = store.metadataFor('moose');
 
-    deepEqual(meta, {page: 1, total_pages: 2});
+    assert.deepEqual(meta, {page: 1, total_pages: 2});
   });
 });
 
-test('includes links in meta data for collections', function(){
+test('includes links in meta data for collections', function(assert){
   server = new Pretender(function(){
     this.get('/mooses', function(){
       return [200, {}, {
@@ -101,13 +101,13 @@ test('includes links in meta data for collections', function(){
   return store.find('moose').then(function(mooses){
     var meta = store.metadataFor('moose');
 
-    deepEqual(meta,
+    assert.deepEqual(meta,
               {links: {self: '/mooses'},
                some_meta_val: 42});
   });
 });
 
-test('loads meta data from explicit `meta` key for single resources', function(){
+test('loads meta data from explicit `meta` key for single resources', function(assert){
   server = new Pretender(function(){
     this.get('/mooses/moose-9000', function(){
       return [200, {}, {
@@ -128,7 +128,7 @@ test('loads meta data from explicit `meta` key for single resources', function()
     store.find('moose', 'moose-9000').then(function(mooses){
       var meta = store.metadataFor('moose');
 
-      deepEqual(meta, {page: 1, total_pages: 2});
+      assert.deepEqual(meta, {page: 1, total_pages: 2});
     });
   });
 });

@@ -1,4 +1,6 @@
 import Ember from "ember";
+import modelNameFromPayloadKey from './compat/model-name-from-payload-key';
+import getModelName from './compat/model-name';
 
 function EmbedExtractor(raw, store, primarySerializer){
   this.raw = raw;
@@ -25,7 +27,8 @@ EmbedExtractor.prototype.extractSingle = function(type){
 };
 
 EmbedExtractor.prototype.pathForType = function(type){
-  return this.store.adapterFor(type).pathForType(type.typeKey);
+  const modelName = getModelName(type);
+  return this.store.adapterFor(type).pathForType(modelName);
 };
 
 // Add a value of the given type to the result set.
@@ -33,7 +36,8 @@ EmbedExtractor.prototype.pathForType = function(type){
 // that should be sideloaded, and when `extractSingle` wants to add its
 // primary type to a top-level array.
 EmbedExtractor.prototype.addValueOfType = function(value, type) {
-  var pathForType = this.store.adapterFor(type).pathForType(type.typeKey);
+  const modelName = getModelName(type);
+  var pathForType = this.store.adapterFor(type).pathForType(modelName);
 
   if (!this.result[pathForType]) {
     this.result[pathForType] = [];
@@ -56,29 +60,31 @@ EmbedExtractor.prototype.extractEmbedded = function(hash, primaryType, primarySe
   var embedded = hash._embedded || {};
   delete result._embedded;
 
-  var value, id, type, typeKey, propName;
+  var value, id, type, modelName, propName;
 
   for (var key in embedded) {
     type = null;
-    typeKey = null;
+    modelName = null;
     propName = key;
 
-    typeKey = primarySerializer.typeForRoot(key);
+
+    modelName = modelNameFromPayloadKey(primarySerializer, key);
 
     /*jshint loopfunc:true*/
     primaryType.eachRelationship(function(name, relationship){
-      if (primarySerializer.typeForRoot(name) === typeKey){
+      var relationshipModelName = modelNameFromPayloadKey(primarySerializer, name);
+      if (relationshipModelName === modelName) {
         type = relationship.type;
         propName = relationship.key;
       }
     });
 
     if (!type) {
-      if (!this.store.modelFactoryFor(typeKey)) {
+      if (!this.store.modelFactoryFor(modelName)) {
         Ember.warn("Skipping unknown type: " + key);
         continue;
       }
-      type = this.store.modelFor(typeKey);
+      type = this.store.modelFor(modelName);
     }
 
     var typeSerializer = this.store.serializerFor(type);

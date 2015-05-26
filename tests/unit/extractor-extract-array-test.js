@@ -1,11 +1,11 @@
+/* global QUnit */
 import {
   test
 } from "ember-qunit";
 import Ember from "ember";
 import EmbedExtractor from "ember-data-hal-9000/embed-extractor";
 
-
-module('EmbedExtractor - extractArray');
+QUnit.module('EmbedExtractor - extractArray');
 
 var mockStore = {
   adapterFor: function(){
@@ -14,7 +14,7 @@ var mockStore = {
 
   modelFor: function(typeKey){
     return {
-      typeKey: typeKey,
+      modelName: typeKey,
       eachRelationship: Ember.K
     };
   },
@@ -35,17 +35,17 @@ var mockAdapter = {
 };
 
 var mockSerializer = {
-  typeForRoot: function(typeKey){
+  modelNameFromPayloadKey: function(typeKey){
     return Ember.Inflector.inflector.singularize(typeKey);
   }
 };
 
 var mockUserType = {
-  typeKey: 'user',
+  modelName: 'user',
   eachRelationship: Ember.K
 };
 
-test('moves array embeds out of _embedded and into top-level', function(){
+test('moves array embeds out of _embedded and into top-level', function(assert){
   var raw = {
     _embedded: {
       users: [{
@@ -58,7 +58,7 @@ test('moves array embeds out of _embedded and into top-level', function(){
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
     extractArray(mockUserType);
 
-  deepEqual(extracted, {
+  assert.deepEqual(extracted, {
     users: [{
       id: 1,
       name: 'Cory'
@@ -66,7 +66,7 @@ test('moves array embeds out of _embedded and into top-level', function(){
   });
 });
 
-test('deeply embedded', function(){
+test('deeply embedded', function(assert){
   var raw = {
     _embedded: {
       users: [{
@@ -89,7 +89,7 @@ test('deeply embedded', function(){
   var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
     extractArray(mockUserType);
 
-  deepEqual(extracted, {
+  assert.deepEqual(extracted, {
     users: [{
       id: 1,
       name: 'Cory',

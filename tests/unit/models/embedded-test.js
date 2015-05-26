@@ -25,7 +25,7 @@ moduleForModel('car', 'Embedded Records', {
   }
 });
 
-test('findMany: loads deeply nested embedded records', function(){
+test('findMany: loads deeply nested embedded records', function(assert){
   server = new Pretender(function(){
     this.get('/cars', function(){
       return [200, {}, {
@@ -87,12 +87,12 @@ test('findMany: loads deeply nested embedded records', function(){
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   return this.store().find('car').then(function(cars){
-    ok(cars, 'records found');
-    ok(cars.get('length') > 0, 'cars found');
+    assert.ok(cars, 'records found');
+    assert.ok(cars.get('length') > 0, 'cars found');
 
     var car = cars.get('firstObject');
     return car.get('wheels');
@@ -100,12 +100,12 @@ test('findMany: loads deeply nested embedded records', function(){
     var firstWheel = wheels.get('firstObject');
     return firstWheel.get('lugnuts');
   }).then(function(lugnuts){
-    equal(lugnuts.get('length'), 1, 'finds 1 lugnut');
-    equal(lugnuts.get('firstObject.size'), 'extra small', 'finds correct lugnut');
+    assert.equal(lugnuts.get('length'), 1, 'finds 1 lugnut');
+    assert.equal(lugnuts.get('firstObject.size'), 'extra small', 'finds correct lugnut');
   });
 });
 
-test('findMany: loads singly nested embedded single records', function(){
+test('findMany: loads singly nested embedded single records', function(assert){
   server = new Pretender(function(){
     this.get('/cars', function(){
       return [200, {}, {
@@ -161,28 +161,28 @@ test('findMany: loads singly nested embedded single records', function(){
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   var cars;
 
   return this.store().find('car').then(function(_cars){
     cars = _cars;
-    equal(cars.get('length'), 2, 'cars found');
+    assert.equal(cars.get('length'), 2, 'cars found');
 
     var car1 = cars.get('firstObject');
     return car1.get('owner');
   }).then(function(owner){
-    equal(owner.get('name'), 'owner #1', 'loads embedded owner 1');
+    assert.equal(owner.get('name'), 'owner #1', 'loads embedded owner 1');
 
     var car2 = cars.get('lastObject');
     return car2.get('owner');
   }).then(function(owner){
-    equal(owner.get('name'), 'owner #2', 'loads embedded owner 2');
+    assert.equal(owner.get('name'), 'owner #2', 'loads embedded owner 2');
   });
 });
 
-test('findMany: loads multiply nested embedded single records', function(){
+test('findMany: loads multiply nested embedded single records', function(assert){
   server = new Pretender(function(){
     this.get('/cars', function(){
       return [200, {}, {
@@ -250,25 +250,25 @@ test('findMany: loads multiply nested embedded single records', function(){
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   var cars;
 
   return this.store().find('car').then(function(_cars){
     cars = _cars;
-    equal(cars.get('length'), 2, 'cars found');
+    assert.equal(cars.get('length'), 2, 'cars found');
 
     var car1 = cars.get('firstObject');
     return car1.get('owner');
   }).then(function(owner){
     return owner.get('team');
   }).then(function(team){
-    equal(team.get('name'), 'winning team', 'loads doubly embedded team model');
+    assert.equal(team.get('name'), 'winning team', 'loads doubly embedded team model');
   });
 });
 
-test('findMany: handles the same object embedded for different records', function(){
+test('findMany: handles the same object embedded for different records', function(assert){
   server = new Pretender(function(){
     this.get('/owners', function(){
       return [200, {}, {
@@ -331,7 +331,7 @@ test('findMany: handles the same object embedded for different records', functio
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   var owners, winningTeam;
@@ -339,28 +339,28 @@ test('findMany: handles the same object embedded for different records', functio
   return this.store().find('owner').then(function(_owners){
     owners = _owners;
 
-    equal(owners.get('length'), 3, 'finds owners');
+    assert.equal(owners.get('length'), 3, 'finds owners');
 
     return owners.objectAt(0).get('team');
   }).then(function(team){
-    equal(team.get('name'), 'winning team', 'finds owner 1 team');
+    assert.equal(team.get('name'), 'winning team', 'finds owner 1 team');
     winningTeam = team;
 
     return owners.objectAt(1).get('team');
   }).then(function(team){
-    equal(team.get('name'), 'winning team', 'finds owner 2 team');
+    assert.equal(team.get('name'), 'winning team', 'finds owner 2 team');
 
-    ok(team === winningTeam, 'owner 1 and 2 have same team');
+    assert.ok(team === winningTeam, 'owner 1 and 2 have same team');
 
     return owners.objectAt(2).get('team');
   }).then(function(team){
-    equal(team.get('name'), 'losing team', 'finds owner 3 team');
+    assert.equal(team.get('name'), 'losing team', 'finds owner 3 team');
 
-    ok(team !== winningTeam, 'losing team is not winning team');
+    assert.ok(team !== winningTeam, 'losing team is not winning team');
   });
 });
 
-test('find many: loads embedded array of records with a custom name', function(){
+test('find many: loads embedded array of records with a custom name', function(assert){
   server = new Pretender(function(){
     this.get('/owners', function(){
       return [200, {}, {
@@ -401,7 +401,7 @@ test('find many: loads embedded array of records with a custom name', function()
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   var store = this.store();
@@ -411,29 +411,29 @@ test('find many: loads embedded array of records with a custom name', function()
     return store.find('owner').then(function(_owners){
       owners = _owners;
 
-      equal(owners.get('length'), 2, 'gets 2 owners');
+      assert.equal(owners.get('length'), 2, 'gets 2 owners');
 
       return owners.objectAt(0).get('amazingTeams');
     }).then(function(teams){
-      ok(!!teams, 'loads amazing teams for first owner');
+      assert.ok(!!teams, 'loads amazing teams for first owner');
 
-      equal(teams.get('length'), 2, 'gets all amazing teams');
-      equal(teams.get('firstObject.name'), 'winning team');
-      equal(teams.get('lastObject.name'), 'losing team');
+      assert.equal(teams.get('length'), 2, 'gets all amazing teams');
+      assert.equal(teams.get('firstObject.name'), 'winning team');
+      assert.equal(teams.get('lastObject.name'), 'losing team');
 
       return owners.objectAt(1).get('amazingTeams');
     }).then(function(teams){
-      ok(!!teams, 'loads amazing teams for second owner');
+      assert.ok(!!teams, 'loads amazing teams for second owner');
 
-      equal(teams.get('length'), 2, 'gets all amazing teams');
-      equal(teams.get('firstObject.name'), 'team#3');
-      equal(teams.get('lastObject.name'), 'team#4');
+      assert.equal(teams.get('length'), 2, 'gets all amazing teams');
+      assert.equal(teams.get('firstObject.name'), 'team#3');
+      assert.equal(teams.get('lastObject.name'), 'team#4');
     });
   });
 });
 
 
-test('find one: loads embedded array of records with a custom name', function(){
+test('find one: loads embedded array of records with a custom name', function(assert){
   server = new Pretender(function(){
     this.get('/owners/owner-1', function(){
       return [200, {}, {
@@ -456,7 +456,7 @@ test('find one: loads embedded array of records with a custom name', function(){
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   var store = this.store();
@@ -466,21 +466,21 @@ test('find one: loads embedded array of records with a custom name', function(){
     return store.find('owner', 'owner-1').then(function(_owner){
       owner = _owner;
 
-      ok(!!owner, 'loads owner');
-      equal(owner.get('name'), 'owner #1');
+      assert.ok(!!owner, 'loads owner');
+      assert.equal(owner.get('name'), 'owner #1');
 
       return owner.get('amazingTeams');
     }).then(function(teams){
-      ok(!!teams, 'loads amazing team');
+      assert.ok(!!teams, 'loads amazing team');
 
-      equal(teams.get('length'), 2, 'gets all amazing teams');
-      equal(teams.get('firstObject.name'), 'winning team');
-      equal(teams.get('lastObject.name'), 'losing team');
+      assert.equal(teams.get('length'), 2, 'gets all amazing teams');
+      assert.equal(teams.get('firstObject.name'), 'winning team');
+      assert.equal(teams.get('lastObject.name'), 'losing team');
     });
   });
 });
 
-test('find one: loads singly embedded records', function(){
+test('find one: loads singly embedded records', function(assert){
   server = new Pretender(function(){
     this.get('/owners/owner-1', function(){
       return [200, {}, {
@@ -503,25 +503,25 @@ test('find one: loads singly embedded records', function(){
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   var store = this.store();
 
   return Ember.run(function(){
     return store.find('owner', 'owner-1').then(function(owner){
-      ok(!!owner, 'loads owner');
-      equal(owner.get('name'), 'owner #1');
+      assert.ok(!!owner, 'loads owner');
+      assert.equal(owner.get('name'), 'owner #1');
 
       return owner.get('team');
     }).then(function(team){
-      ok(!!team, 'loads team');
-      equal(team.get('name'), 'winning team');
+      assert.ok(!!team, 'loads team');
+      assert.equal(team.get('name'), 'winning team');
     });
   });
 });
 
-test('find one: loads an embedded record with a custom name', function(){
+test('find one: loads an embedded record with a custom name', function(assert){
   server = new Pretender(function(){
     this.get('/owners/owner-1', function(){
       return [200, {}, {
@@ -545,7 +545,7 @@ test('find one: loads an embedded record with a custom name', function(){
 
   server.unhandledRequest = function(verb, path, request){
     console.error('unhandled request');
-    ok(false, 'Unhandled request for ' + verb + ' ' + path);
+    assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
   var store = this.store();
@@ -555,18 +555,18 @@ test('find one: loads an embedded record with a custom name', function(){
     return store.find('owner', 'owner-1').then(function(_owner){
       owner = _owner;
 
-      ok(!!owner, 'loads owner');
-      equal(owner.get('name'), 'owner #1');
+      assert.ok(!!owner, 'loads owner');
+      assert.equal(owner.get('name'), 'owner #1');
 
       return owner.get('team');
     }).then(function(team){
-      ok(!!team, 'loads team');
-      equal(team.get('name'), 'losing team');
+      assert.ok(!!team, 'loads team');
+      assert.equal(team.get('name'), 'losing team');
 
       return owner.get('favoriteTeam');
     }).then(function(team){
-      ok(!!team, 'loads favorite team');
-      equal(team.get('name'), 'winning team');
+      assert.ok(!!team, 'loads favorite team');
+      assert.equal(team.get('name'), 'winning team');
     });
   });
 });
