@@ -7,48 +7,17 @@ module.exports = {
       dependencies: {}
     },
     {
-      name: "ember-release",
+      name: "ember-data-beta-19",
       dependencies: {
-        "ember": "components/ember#release"
-      },
-      resolutions: {
-        'ember': 'release'
+        "ember": "1.12.1",
+        "ember-data": "1.0.0-beta.19.2"
       }
     },
     {
-      name: "ember-beta",
+      name: "ember-data-beta-19-with-ember-1-13",
       dependencies: {
-        "ember": "components/ember#beta"
-      },
-      resolutions: {
-        'ember': 'beta'
-      }
-    },
-    {
-      name: "ember-canary",
-      dependencies: {
-        "ember": "components/ember#canary"
-      },
-      resolutions: {
-        'ember': 'canary'
-      }
-    },
-    {
-      name: "ember-data-beta-15",
-      dependencies: {
-        "ember-data": "1.0.0-beta.15"
-      }
-    },
-    {
-      name: "ember-data-beta-16.1",
-      dependencies: {
-        "ember-data": "1.0.0-beta.16.1"
-      }
-    },
-    {
-      name: "ember-data-beta-18",
-      dependencies: {
-        "ember-data": "1.0.0-beta.18"
+        "ember": "1.13.2",
+        "ember-data": "1.0.0-beta.19.2"
       }
     }
   ]

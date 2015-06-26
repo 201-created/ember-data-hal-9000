@@ -28,7 +28,7 @@ EmbedExtractor.prototype.extractSingle = function(type){
 
 EmbedExtractor.prototype.pathForType = function(type){
   const modelName = getModelName(type);
-  return this.store.adapterFor(type).pathForType(modelName);
+  return this.store.adapterFor(modelName).pathForType(modelName);
 };
 
 // Add a value of the given type to the result set.
@@ -37,7 +37,7 @@ EmbedExtractor.prototype.pathForType = function(type){
 // primary type to a top-level array.
 EmbedExtractor.prototype.addValueOfType = function(value, type) {
   const modelName = getModelName(type);
-  var pathForType = this.store.adapterFor(type).pathForType(modelName);
+  var pathForType = this.store.adapterFor(modelName).pathForType(modelName);
 
   if (!this.result[pathForType]) {
     this.result[pathForType] = [];
@@ -87,7 +87,11 @@ EmbedExtractor.prototype.extractEmbedded = function(hash, primaryType, primarySe
       type = this.store.modelFor(modelName);
     }
 
-    var typeSerializer = this.store.serializerFor(type);
+    if (typeof type === 'string') {
+      type = this.store.modelFor(type);
+    }
+
+    var typeSerializer = this.store.serializerFor(modelName);
 
     value = embedded[key];
 
