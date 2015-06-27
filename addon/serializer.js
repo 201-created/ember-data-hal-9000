@@ -32,7 +32,7 @@ function setMeta(store, type, meta){
   }
 }
 
-export default DS.ActiveModelSerializer.extend({
+export default DS.JSONAPISerializer.extend({
   /*
    `__requestType` is used to know if we are
    dealing with a list resource (i.e., GET /users) which may
@@ -79,10 +79,15 @@ export default DS.ActiveModelSerializer.extend({
   /*
    * Override `extract` so we can store the requestType for extractMeta
    */
-  extract: function(store, type, payload, id, requestType) {
+  normalizeResponse: function(store, type, payload, id, requestType) {
     this.__requestType = requestType; // used by `extractMeta`
 
     return this._super(store, type, payload, id, requestType);
+  },
+
+  normalizeFindAllResponse: function(store, primaryModelClass, payload, id, requestType) {
+    var extracted = new EmbedExtractor(payload, store, this).
+      extractArray(primaryType);
   },
 
   /**

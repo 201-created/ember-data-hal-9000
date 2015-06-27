@@ -9,6 +9,74 @@ function EmbedExtractor(raw, store, primarySerializer){
   this.serializer = primarySerializer;
 }
 
+/*
+      return [200, {}, {
+        _links: {
+          self: {
+            href: "/cars"
+          }
+        },
+        _embedded: {
+          cars: [{
+            id: 'miata-1',
+            _links: {
+              self: {
+                href: "/cars/miata-1",
+              },
+              wheels: {
+                href: "/cars/miata-1/wheels",
+              }
+            },
+            _embedded: {
+              wheels: [{
+                id: 'wheel-front-left',
+                _links: {
+                  self: { href: "/wheels/wheel-front-left" },
+                  car:  { href: "/cars/miata-1" },
+                  lugnuts:  { href: "/cars/miata-1/lugnuts" }
+                },
+                _embedded: {
+                  lugnuts: [{
+                    id: 'lugnut-1',
+                    size: 'extra small'
+                  }]
+                }
+              }, {
+                id: 'wheel-front-right',
+                _links: {
+                  self: { href: "/wheels/wheel-front-right" },
+                  car:  { href: "/cars/miata-1" }
+                }
+              }, {
+                id: 'wheel-back-right',
+                _links: {
+                  self: { href: "/wheels/wheel-back-right" },
+                  car:  { href: "/cars/miata-1" }
+                }
+              }, {
+                id: 'wheel-back-left',
+                _links: {
+                  self: { href: "/wheels/wheel-back-left" },
+                  car:  { href: "/cars/miata-1" }
+                }
+              }]
+            }
+          }]
+        }
+      }];
+    });
+  });
+ */
+
+EmbedExtractor.prototype.normalizeFindAllResponse = function(store, primaryModelClass, payload, id, requestType){
+  var links = this.extractLinks(store, primaryModelClass, payload, id, requestType);
+  var embedded = payload._embedded;
+};
+
+EmbedExtractor.prototype.extractLinks = function(store, primaryModelClass, payload, id, requestType) {
+  return payload._links;
+};
+
 EmbedExtractor.prototype.extractArray = function(primaryType){
   // initialize result set with primary type
   this.result[ this.pathForType(primaryType) ] = [];

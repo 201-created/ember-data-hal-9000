@@ -90,7 +90,7 @@ test('findMany: loads deeply nested embedded records', function(assert){
     assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
-  return this.store().find('car').then(function(cars){
+  return this.store().findAll('car').then(function(cars){
     assert.ok(cars, 'records found');
     assert.ok(cars.get('length') > 0, 'cars found');
 

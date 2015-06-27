@@ -3,9 +3,9 @@ import {
   test
 } from "ember-qunit";
 import Ember from "ember";
-import EmbedExtractor from "ember-data-hal-9000/embed-extractor";
+import Normalizer from "ember-data-hal-9000/normalizer";
 
-QUnit.module('EmbedExtractor - extractArray');
+QUnit.module('Normalizer - collections');
 
 var mockStore = {
   adapterFor: function(){
@@ -45,8 +45,8 @@ var mockUserType = {
   eachRelationship: Ember.K
 };
 
-test('moves array embeds out of _embedded and into top-level', function(assert){
-  var raw = {
+test('#normalizeResponse returns JSON API format for simple collections', function(assert){
+  var payload = {
     _embedded: {
       users: [{
         id: 1,
@@ -55,19 +55,30 @@ test('moves array embeds out of _embedded and into top-level', function(assert){
     }
   };
 
-  var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractArray(mockUserType);
+  var mockModelClass = {
+    modelName: 'user'
+  };
+  var store = mockStore;
 
-  assert.deepEqual(extracted, {
-    users: [{
+  var primaryModelClass = mockModelClass;
+  var id, requestType; // n/a
+
+  var response = new Normalizer(store, primaryModelClass, payload, id, requestType).
+    normalizeResponse();
+
+  assert.deepEqual(response, {
+    data: [{
       id: 1,
-      name: 'Cory'
+      type: 'user',
+      attributes: {
+        name: 'Cory'
+      }
     }]
   });
 });
 
-test('deeply embedded', function(assert){
-  var raw = {
+test('#normalizeResponse returns JSON API with nested embeds', function(assert){
+  var payload = {
     _embedded: {
       users: [{
         id: 1,
@@ -86,23 +97,55 @@ test('deeply embedded', function(assert){
     }
   };
 
-  var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
-    extractArray(mockUserType);
+  var primaryModelClass = {
+    modelName: 'user'
+  };
+  var id, requestType;
+  var store = mockStore;
 
-  assert.deepEqual(extracted, {
-    users: [{
+  var response = new Normalizer(store, primaryModelClass, payload, id, requestType).
+    normalizeResponse();
+
+  assert.deepEqual(response, {
+    data: [{
       id: 1,
-      name: 'Cory',
-      friends: ['f1','f2'],
-      color: 'c1'
+      type: 'user',
+      attributes: {
+        name: 'Cory'
+      },
+      relationships: {
+        friends: {
+          data: [{
+            type: 'friend', id: 'f1'
+          }, {
+            type: 'friend', id: 'f2'
+          }]
+        },
+        colors: {
+          data: [{
+            id: 'c1', type: 'color'
+          }]
+        }
+      }
     }],
-    friends: [{
-      id: 'f1', name:'friend1',
+    included: [{
+      type: 'friend',
+      id: 'f1',
+      attributes: {
+        name: 'friend1'
+      }
     }, {
-      id: 'f2', name:'friend2',
-    }],
-    colors: [{
-      id: 'c1', color: 'blue'
+      type: 'friend',
+      id: 'f1',
+      attributes: {
+        name: 'friend1'
+      }
+    }, {
+      type: 'color',
+      id: 'c1',
+      attributes: {
+        color: 'blue'
+      }
     }]
   });
 });
