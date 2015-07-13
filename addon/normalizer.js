@@ -1,4 +1,6 @@
 import Ember from 'ember';
+import Response from './response';
+import Resource from './resource';
 
 const RESERVED_ATTRIBUTES = ['type', 'id', '_embedded', '_links'];
 
@@ -19,49 +21,65 @@ export default class Normalizer {
     this.payload = payload;
     this.id = id;
     this.requestType = requestType;
+    this.response = new Response(this.store);
   }
 
-  normalizeResponse() {
-    return this.normalizeFindAllResponse();
-  }
-
-  normalizeFindAllResponse() {
-    const rawCollectionResources =
+  normalizeArrayResponse() {
+    const resourcePayloads =
       this.payload._embedded[this._payloadKeyForClass(this.primaryModelClass)];
+    const type = this.primaryModelClass.modelName;
 
-    const normalizedCollectionResources = rawCollectionResources.map((rawResource) => {
-      return this._extractSingleOfClass(rawResource, this.primaryModelClass);
-    });
-
-    return {
-      data: normalizedCollectionResources
-    };
+    this._extractCollection(resourcePayloads, type);
+    return this.response.toJSON();
   }
 
-  _extractSingleOfClass(payload, modelClass) {
-    let attributes = copyAttributesExcluding(payload, RESERVED_ATTRIBUTES);
+  normalizeSingleResponse() {
+    const resourcePayload = this.payload;
+    const type = this.primaryModelClass.modelName;
+    const isCollection = false;
 
-    if (payload._embedded) {
-      let relationships = this._extractRelationships(payload._embedded);
-    }
+    this._extractSingle(resourcePayload, type, isCollection);
+    return this.response.toJSON();
+  }
 
-    return {
-      id: payload.id,
-      type: this._responseTypeForClass(modelClass),
-      attributes
-    };
+  _extractCollection(payloads, type) {
+    const isCollection = true;
+    payloads.forEach((payload) => this._extractSingle(payload, type, isCollection));
+  }
+
+  _extractSingle(payload, type, isCollection=false) {
+    const attributes = copyAttributesExcluding(payload, RESERVED_ATTRIBUTES);
+    const id = payload.id;
+    const resource = new Resource({ id, type, attributes });
+
+    this.response.pushResource(resource, isCollection, () => {
+      this._extractRelationships(payload._embedded || {});
+    });
   }
 
   _extractRelationships(payload) {
+    Object.keys(payload).forEach((key) => {
+      const relatedPayload = payload[key];
+      const type = key;
+      this._extractRelationship(relatedPayload, type);
+
+    });
   }
 
-  // the "type" value in the normalized response for this class
-  _responseTypeForClass(modelClass) {
-    return modelClass.modelName;
+  _extractRelationship(payload, type) {
+    if (Array.isArray(payload)) {
+      this._extractCollection(payload, type);
+    } else {
+      this._extractSingle(payload, type);
+    }
   }
 
   // the key in the incoming payload for this class
   _payloadKeyForClass(modelClass) {
     return Ember.String.pluralize(modelClass.modelName);
+  }
+
+  _modelClassForPayloadKey(key) {
+    return this.store.modelFor(key);
   }
 }

@@ -5,7 +5,7 @@ import {
 import Ember from "ember";
 import Normalizer from "ember-data-hal-9000/normalizer";
 
-QUnit.module('Normalizer - collections');
+QUnit.module('Unit: Normalizer - normalizeArrayResponse');
 
 var mockStore = {
   adapterFor: function(){
@@ -30,13 +30,13 @@ var mockStore = {
 
 var mockAdapter = {
   pathForType: function(typeKey){
-    return Ember.Inflector.inflector.pluralize(typeKey);
+    return Ember.String.pluralize(typeKey);
   }
 };
 
 var mockSerializer = {
   modelNameFromPayloadKey: function(typeKey){
-    return Ember.Inflector.inflector.singularize(typeKey);
+    return Ember.String.singularize(typeKey);
   }
 };
 
@@ -45,7 +45,7 @@ var mockUserType = {
   eachRelationship: Ember.K
 };
 
-test('#normalizeResponse returns JSON API format for simple collections', function(assert){
+test('#normalizeArrayResponse returns JSON API format for simple collections', function(assert){
   var payload = {
     _embedded: {
       users: [{
@@ -64,7 +64,7 @@ test('#normalizeResponse returns JSON API format for simple collections', functi
   var id, requestType; // n/a
 
   var response = new Normalizer(store, primaryModelClass, payload, id, requestType).
-    normalizeResponse();
+    normalizeArrayResponse();
 
   assert.deepEqual(response, {
     data: [{
@@ -77,7 +77,7 @@ test('#normalizeResponse returns JSON API format for simple collections', functi
   });
 });
 
-test('#normalizeResponse returns JSON API with nested embeds', function(assert){
+test('#normalizeArrayResponse returns JSON API with nested embeds', function(assert){
   var payload = {
     _embedded: {
       users: [{
@@ -98,13 +98,32 @@ test('#normalizeResponse returns JSON API with nested embeds', function(assert){
   };
 
   var primaryModelClass = {
-    modelName: 'user'
+    modelName: 'user',
+    eachRelationship(callback) {
+      let key = 'color',
+          kind = 'belongsTo';
+      callback(key, {kind});
+
+      key = 'friends';
+      kind = 'hasMany';
+      callback(key, {kind});
+    }
   };
   var id, requestType;
   var store = mockStore;
+  store.modelFor = (name) => {
+    if (name === 'user') {
+      return primaryModelClass;
+    } else {
+      return {
+        modelName: Ember.String.singularize(name),
+        eachRelationship: Ember.K
+      };
+    }
+  };
 
   var response = new Normalizer(store, primaryModelClass, payload, id, requestType).
-    normalizeResponse();
+    normalizeArrayResponse();
 
   assert.deepEqual(response, {
     data: [{
@@ -116,35 +135,35 @@ test('#normalizeResponse returns JSON API with nested embeds', function(assert){
       relationships: {
         friends: {
           data: [{
-            type: 'friend', id: 'f1'
+            type: 'friends', id: 'f1'
           }, {
-            type: 'friend', id: 'f2'
+            type: 'friends', id: 'f2'
           }]
         },
-        colors: {
-          data: [{
+        color: {
+          data: {
             id: 'c1', type: 'color'
-          }]
+          }
         }
       }
     }],
     included: [{
-      type: 'friend',
-      id: 'f1',
-      attributes: {
-        name: 'friend1'
-      }
-    }, {
-      type: 'friend',
-      id: 'f1',
-      attributes: {
-        name: 'friend1'
-      }
-    }, {
       type: 'color',
       id: 'c1',
       attributes: {
         color: 'blue'
+      }
+    }, {
+      type: 'friends',
+      id: 'f1',
+      attributes: {
+        name: 'friend1'
+      }
+    }, {
+      type: 'friends',
+      id: 'f2',
+      attributes: {
+        name: 'friend2'
       }
     }]
   });
