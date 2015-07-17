@@ -107,6 +107,14 @@ test('#normalizeArrayResponse returns JSON API with nested embeds', function(ass
       key = 'friends';
       kind = 'hasMany';
       callback(key, {kind});
+    },
+
+    relationshipsByName: {
+      get: function(key) {
+        return {
+          type: key
+        };
+      }
     }
   };
   var id, requestType;
