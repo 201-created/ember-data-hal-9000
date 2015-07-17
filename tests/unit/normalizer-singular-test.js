@@ -15,7 +15,10 @@ var mockStore = {
   modelFor: function(typeKey){
     return {
       modelName: typeKey,
-      eachRelationship: Ember.K
+      eachRelationship: Ember.K,
+      relationshipsByName: {
+        get: Ember.K
+      }
     };
   },
 
@@ -42,7 +45,10 @@ var mockSerializer = {
 
 var mockUserType = {
   modelName: 'user',
-  eachRelationship: Ember.K
+  eachRelationship: Ember.K,
+  relationshipsByName: {
+    get: Ember.K
+  }
 };
 
 
@@ -226,7 +232,7 @@ test('deeply embedded objects and arrays are replaced by array/single ids and si
         name: 'driver 1'
       },
       relationships: {
-        favoriteColors: {
+        'favorite-colors': {
           data: [{
             id: 'c1', type: 'favoriteColors'
           }, {

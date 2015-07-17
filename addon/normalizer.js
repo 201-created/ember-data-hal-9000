@@ -29,7 +29,7 @@ export default class Normalizer {
       this.payload._embedded[this._payloadKeyForClass(this.primaryModelClass)];
     const type = this.primaryModelClass.modelName;
 
-    this._extractCollection(resourcePayloads, type);
+    this._extractCollection(resourcePayloads, type, type);
     return this.response.toJSON();
   }
 
@@ -38,39 +38,48 @@ export default class Normalizer {
     const type = this.primaryModelClass.modelName;
     const isCollection = false;
 
-    this._extractSingle(resourcePayload, type, isCollection);
+    this._extractSingle(resourcePayload, type, type, isCollection);
     return this.response.toJSON();
   }
 
-  _extractCollection(payloads, type) {
+  _extractCollection(payloads, key, type) {
     const isCollection = true;
-    payloads.forEach((payload) => this._extractSingle(payload, type, isCollection));
+    payloads.forEach((payload) => this._extractSingle(payload, key, type, isCollection));
   }
 
-  _extractSingle(payload, type, isCollection=false) {
+  _extractSingle(payload, key, type, isCollection=false) {
     const attributes = copyAttributesExcluding(payload, RESERVED_ATTRIBUTES);
     const id = payload.id;
-    const resource = new Resource({ id, type, attributes });
+    const resource = new Resource({ id, key, type, attributes });
 
     this.response.pushResource(resource, isCollection, () => {
-      this._extractRelationships(payload._embedded || {});
+      var primaryModelClass = this.primaryModelClass;
+      this._extractRelationships(payload._embedded || {}, primaryModelClass);
     });
   }
 
-  _extractRelationships(payload) {
+  _extractRelationships(payload, primaryModelClass) {
     Object.keys(payload).forEach((key) => {
       const relatedPayload = payload[key];
-      const type = key;
-      this._extractRelationship(relatedPayload, type);
+      const attributeName = Ember.String.camelize(key);
+      const relationship = Ember.get(primaryModelClass, 'relationshipsByName').get(attributeName);
 
+      var type;
+      if (relationship && relationship.type) {
+        type = relationship.type;
+      } else {
+        type = attributeName;
+      }
+
+      this._extractRelationship(relatedPayload, Ember.String.dasherize(key), type);
     });
   }
 
-  _extractRelationship(payload, type) {
+  _extractRelationship(payload, key, type) {
     if (Array.isArray(payload)) {
-      this._extractCollection(payload, type);
+      this._extractCollection(payload, key, type);
     } else {
-      this._extractSingle(payload, type);
+      this._extractSingle(payload, key, type);
     }
   }
 

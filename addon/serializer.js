@@ -1,6 +1,7 @@
 import DS from "ember-data";
 import Ember from 'ember';
 import EmbedExtractor from "./embed-extractor";
+import Normalizer from "./normalizer";
 
 // requestType values that indicate that we are loading a collection, not
 // a single resource
@@ -82,12 +83,15 @@ export default DS.JSONAPISerializer.extend({
   normalizeResponse: function(store, type, payload, id, requestType) {
     this.__requestType = requestType; // used by `extractMeta`
 
-    return this._super(store, type, payload, id, requestType);
-  },
+    var normalizer = new Normalizer(store, type, payload, id, requestType);
+    var newPayload;
+    if(payload.id) {
+      newPayload = normalizer.normalizeSingleResponse();
+    } else {
+      newPayload = normalizer.normalizeArrayResponse();
+    }
 
-  normalizeFindAllResponse: function(store, primaryModelClass, payload, id, requestType) {
-    var extracted = new EmbedExtractor(payload, store, this).
-      extractArray(primaryType);
+    return this._super(store, type, newPayload, id, requestType);
   },
 
   /**
