@@ -50,7 +50,7 @@ to turn these back into the format that ember-data expects for
 sideloads. It will restructure arbitrarily deeply nested embeds, and it
 will delete `_links` keys when they match embedded properties. Example:
 
-```
+```javascript
 # GET /users/1
 {
   id: 1,
