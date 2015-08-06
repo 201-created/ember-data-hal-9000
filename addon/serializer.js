@@ -24,40 +24,36 @@ function extractLinksIntoMeta(payload, meta){
   return meta;
 }
 
-function setMeta(store, type, meta){
-  if (store.setMetadataFor) { // Ember Data after 1.14.1 adds this method
-    store.setMetadataFor(type, meta);
-  } else {
-    store.metaForType(type, meta);
-  }
-}
-
 export default DS.JSONAPISerializer.extend({
-  /*
-   `__requestType` is used to know if we are
-   dealing with a list resource (i.e., GET /users) which may
-   have meta data in the root of the payload, i.e.:
-   {
-     page: 1,                // <-- metadata
-     total_pages: 5,         // <-- metadata
-     _embedded: {
-       users: [{...}, ...]
-     }
-   }
-
-   If the requestType is for a single resource we cannot determine
-   which properties are metadata and which are part of the payload
-   for that resource because they are all at the root level of the payload,
-   so punt on that here -- per-model serializers can override extractMeta
-   if they need to.
-
-   @return {Object} The payload, modified to remove metadata
-  */
+  /**
+   *
+   * `__requestType` is used to know if we are
+   * dealing with a list resource (i.e., GET /users) which may
+   * have meta data in the root of the payload, i.e.:
+   * {
+   *   page: 1,                // <-- metadata
+   *   total_pages: 5,         // <-- metadata
+   *   _embedded: {
+   *     users: [{...}, ...]
+   *   }
+   * }
+   *
+   * If the requestType is for a single resource we cannot determine
+   * which properties are metadata and which are part of the payload
+   * for that resource because they are all at the root level of the payload,
+   * so punt on that here -- per-model serializers can override extractMeta
+   * if they need to.
+   * @method extractMeta
+   * @param store
+   * @param type
+   * @param payload
+   * @returns {Object|void} meta object or void if no meta is found on the payload
+   */
   extractMeta: function(store, type, payload){
     var requestType = this.__requestType;
 
     if ( findManyRequestTypes.indexOf(requestType) > -1 ) {
-      var meta = {};
+      let meta = {};
 
       Ember.keys(payload).forEach(function(key){
         if (reservedKeys.indexOf(key) > -1) { return; }
@@ -68,12 +64,8 @@ export default DS.JSONAPISerializer.extend({
 
       meta = extractLinksIntoMeta(payload, meta);
 
-      setMeta(store, type, meta);
+      return meta;
     }
-
-    this._super(store, type, payload);
-
-    return payload;
   },
 
   /*
