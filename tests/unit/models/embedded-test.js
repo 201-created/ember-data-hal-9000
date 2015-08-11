@@ -90,7 +90,7 @@ test('findMany: loads deeply nested embedded records', function(assert){
     assert.ok(false, 'Unhandled request for ' + verb + ' ' + path);
   };
 
-  return this.store().find('car').then(function(cars){
+  return this.store().findAll('car').then(function(cars){
     assert.ok(cars, 'records found');
     assert.ok(cars.get('length') > 0, 'cars found');
 
@@ -166,7 +166,7 @@ test('findMany: loads singly nested embedded single records', function(assert){
 
   var cars;
 
-  return this.store().find('car').then(function(_cars){
+  return this.store().findAll('car').then(function(_cars){
     cars = _cars;
     assert.equal(cars.get('length'), 2, 'cars found');
 
@@ -255,7 +255,7 @@ test('findMany: loads multiply nested embedded single records', function(assert)
 
   var cars;
 
-  return this.store().find('car').then(function(_cars){
+  return this.store().findAll('car').then(function(_cars){
     cars = _cars;
     assert.equal(cars.get('length'), 2, 'cars found');
 
@@ -336,7 +336,7 @@ test('findMany: handles the same object embedded for different records', functio
 
   var owners, winningTeam;
 
-  return this.store().find('owner').then(function(_owners){
+  return this.store().findAll('owner').then(function(_owners){
     owners = _owners;
 
     assert.equal(owners.get('length'), 3, 'finds owners');
@@ -408,7 +408,7 @@ test('find many: loads embedded array of records with a custom name', function(a
   var owners;
 
   return Ember.run(function(){
-    return store.find('owner').then(function(_owners){
+    return store.findAll('owner').then(function(_owners){
       owners = _owners;
 
       assert.equal(owners.get('length'), 2, 'gets 2 owners');
@@ -463,7 +463,7 @@ test('find one: loads embedded array of records with a custom name', function(as
   var owner;
 
   return Ember.run(function(){
-    return store.find('owner', 'owner-1').then(function(_owner){
+    return store.findRecord('owner', 'owner-1').then(function(_owner){
       owner = _owner;
 
       assert.ok(!!owner, 'loads owner');
@@ -509,7 +509,7 @@ test('find one: loads singly embedded records', function(assert){
   var store = this.store();
 
   return Ember.run(function(){
-    return store.find('owner', 'owner-1').then(function(owner){
+    return store.findRecord('owner', 'owner-1').then(function(owner){
       assert.ok(!!owner, 'loads owner');
       assert.equal(owner.get('name'), 'owner #1');
 
@@ -552,7 +552,7 @@ test('find one: loads an embedded record with a custom name', function(assert){
   var owner;
 
   return Ember.run(function(){
-    return store.find('owner', 'owner-1').then(function(_owner){
+    return store.findRecord('owner', 'owner-1').then(function(_owner){
       owner = _owner;
 
       assert.ok(!!owner, 'loads owner');

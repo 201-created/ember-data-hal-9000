@@ -1,6 +1,6 @@
 {
   "name": "ember-data-hal-9000",
-  "version": "0.2.0",
+  "version": "0.1.7",
   "main": "index.js",
   "directories": {
     "doc": "doc",
@@ -28,7 +28,7 @@
     "ember-cli-pretender": "^0.3.1",
     "ember-cli-qunit": "0.3.13",
     "ember-cli-uglify": "^1.0.1",
-    "ember-data": "1.0.0-beta.18",
+    "ember-data": "1.13.8",
     "ember-disable-prototype-extensions": "^1.0.0",
     "ember-disable-proxy-controllers": "^0.7.0",
     "ember-export-application-global": "^1.0.2",
