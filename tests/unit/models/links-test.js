@@ -32,7 +32,7 @@ test('single resource links are available in model data.links property', functio
 
   var store = this.store();
   return Ember.run(function(){
-    return store.find('moose', 1).then(function(moose){
+    return store.findRecord('moose', 1).then(function(moose){
       var links = moose.get('data.links');
 
       assert.deepEqual(links, {self: '/mooses/1', cats: '/mooses/1/cats' });
