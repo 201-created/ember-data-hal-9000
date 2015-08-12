@@ -7,6 +7,10 @@ import Ember from "ember";
 
 var server;
 
+function getMetadata(store, type) {
+  return store._metadataFor(type);
+}
+
 moduleForModel('moose', 'Metadata', {
   needs: ['serializer:application', 'adapter:application'],
   teardown: function(){
@@ -39,9 +43,7 @@ test('loads meta data from top-level non-reserved keys for collection resources'
 
   var store = this.store();
   return store.findAll('moose').then(function(mooses){
-    var meta = store.metadataFor('moose');
-
-    assert.deepEqual(meta, {page: 1, total_pages: 2});
+    assert.deepEqual(getMetadata(store,'moose'), {page: 1, total_pages: 2});
   });
 });
 
@@ -69,9 +71,7 @@ test('loads meta data from explicit `meta` key for collections', function(assert
 
   var store = this.store();
   return store.findAll('moose').then(function(mooses){
-    var meta = store.metadataFor('moose');
-
-    assert.deepEqual(meta, {page: 1, total_pages: 2});
+    assert.deepEqual(getMetadata(store,'moose'), {page: 1, total_pages: 2});
   });
 });
 
@@ -99,9 +99,7 @@ test('includes links in meta data for collections', function(assert){
 
   var store = this.store();
   return store.findAll('moose').then(function(mooses){
-    var meta = store.metadataFor('moose');
-
-    assert.deepEqual(meta,
+    assert.deepEqual(getMetadata(store, 'moose'),
               {links: {self: '/mooses'},
                some_meta_val: 42});
   });
@@ -126,9 +124,7 @@ test('loads meta data from explicit `meta` key for single resources', function(a
   var store = this.store();
   return Ember.run(function(){
     store.findRecord('moose', 'moose-9000').then(function(mooses){
-      var meta = store.metadataFor('moose');
-
-      assert.deepEqual(meta, {page: 1, total_pages: 2});
+      assert.deepEqual(getMetadata(store, 'moose'), {page: 1, total_pages: 2});
     });
   });
 });
