@@ -3,19 +3,13 @@ import resolver from './helpers/resolver';
 import {
   setResolver
 } from 'ember-qunit';
-import Pretender from 'pretender';
+import FakeServer from 'ember-cli-fake-server';
 
 setResolver(resolver);
 
-Pretender.prototype.prepareHeaders = function(headers){
-  headers['Content-Type'] = 'application/json';
-  return headers;
-};
-
-Pretender.prototype.prepareBody = function(body){
-  if (typeof body === 'string') {
-    return body;
-  } else {
-    return JSON.stringify(body);
-  }
-};
+QUnit.testStart(function() {
+  FakeServer.start();
+});
+QUnit.testDone(function() {
+  FakeServer.stop();
+});

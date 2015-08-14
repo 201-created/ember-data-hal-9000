@@ -2,10 +2,8 @@ import {
   test,
   moduleForModel
 } from "ember-qunit";
-import Pretender from "pretender";
+import { stubRequest } from 'ember-cli-fake-server';
 import Ember from "ember";
-
-var server;
 
 moduleForModel('car', 'Car : hasMany', {
   needs: [
@@ -16,54 +14,42 @@ moduleForModel('car', 'Car : hasMany', {
 
     'serializer:application',
     'adapter:application'
-  ],
-  teardown: function(){
-    if (server) {
-      server.shutdown();
-      server = null;
-    }
-  }
+  ]
 });
 
 test('car#hasMany wheels loads wheels from link', function(assert){
-  var store = this.store();
+  const store = this.store();
 
-  server = new Pretender(function(){
-    this.get('/cars/1', function(request){
-      return [200, {}, {
-        id: '1',
-        make: 'Miata',
-        model: 'Pretender',
-        _links: {
-          self: { href: '/cars/1' },
-          wheels: {
-            href: '/cars/1/wheels'
-          }
+  stubRequest('get', '/cars/1', (request) => {
+    request.ok({
+      id: '1',
+      make: 'Miata',
+      model: 'Pretender',
+      _links: {
+        self: { href: '/cars/1' },
+        wheels: {
+          href: '/cars/1/wheels'
         }
-      }];
-    });
-
-    this.get('/cars/1/wheels', function(request){
-      return [200, {}, {
-        _links: {
-          self: { href: '/cars/1/wheels' }
-        },
-        _embedded: {
-          wheels: [{
-            id: 'wheel-1',
-            hasSnowChains: true
-          }, {
-            id: 'wheel-2',
-            hasSnowChains: false
-          }]
-        }
-      }];
+      }
     });
   });
 
-  server.unhandledRequest = function(verb, path, request){
-    assert.ok(false, 'unhandled request for ' + verb + ' ' + path);
-  };
+  stubRequest('get', '/cars/1/wheels', (request) => {
+    request.ok({
+      _links: {
+        self: { href: '/cars/1/wheels' }
+      },
+      _embedded: {
+        wheels: [{
+          id: 'wheel-1',
+          hasSnowChains: true
+        }, {
+          id: 'wheel-2',
+          hasSnowChains: false
+        }]
+      }
+    });
+  });
 
   return Ember.run(function(){
     return store.findRecord('car', 1).then(function(car){
