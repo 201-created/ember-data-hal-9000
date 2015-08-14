@@ -40,7 +40,7 @@ test('loads a HAL formatted record', function(assert){
     });
   });
 
-  return this.store().find('moose').then(function(mooses){
+  return this.store().findAll('moose').then(function(mooses){
     assert.ok(mooses, 'records found');
     assert.ok(mooses.get('length') > 0, 'many records found');
     assert.ok(mooses.get('firstObject.id'), 'moose-9000', 'record loaded');
@@ -71,7 +71,7 @@ test('loads attribute on a HAL formatted record', function(assert){
     });
   });
 
-  return this.store().find('moose').then(function(mooses){
+  return this.store().findAll('moose').then(function(mooses){
     assert.ok(mooses, 'records found');
     assert.ok(mooses.get('firstObject.name'), 'Marcy', 'record has an attribute');
   });
