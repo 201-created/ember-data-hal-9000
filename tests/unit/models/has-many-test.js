@@ -66,7 +66,7 @@ test('car#hasMany wheels loads wheels from link', function(assert){
   };
 
   return Ember.run(function(){
-    return store.find('car', 1).then(function(car){
+    return store.findRecord('car', 1).then(function(car){
       return car.get('wheels');
     }).then(function(wheels){
       assert.ok(!!wheels, 'gets wheels');
