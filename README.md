@@ -14,7 +14,7 @@ ember-data-hal-9000 supports ember data pre beta 19, beta 19, and ember data 1.1
 
 Ember Data < 1.0.0-beta.19 | Ember Data 1.0.0-beta.19.2 | Ember Data 1.13
 ---------------------------|----------------------------|----------------
-use version 0.1.x  | use version 0.2.x  | coming soon (version 0.3.x)
+use version 0.1.x  | use version 0.2.x  | 0.3.x
 
 ## Usage
 
