@@ -51,7 +51,7 @@ sideloads. It will restructure arbitrarily deeply nested embeds, and it
 will delete `_links` keys when they match embedded properties. Example:
 
 ```javascript
-# GET /users/1
+// GET /users/1
 {
   id: 1,
   name: 'the user',
@@ -67,7 +67,7 @@ will delete `_links` keys when they match embedded properties. Example:
   }
 }
 
-# The HAL serializer will restructure this JSON like so:
+// The HAL serializer will restructure this JSON like so:
 {
   user: {
     id: 1,
@@ -84,7 +84,7 @@ will delete `_links` keys when they match embedded properties. Example:
   }
 }
 
-# This code in your route will work.
+// This code in your route will work.
 store.get('user', 1).then(function(user){
   return user.get('pet'); // ember-data will use the sideloaded pet and will not GET /users/1/pet
 });
@@ -100,7 +100,7 @@ The HAL adapter will read all non-reserved property names (i.e., those other
 than `_embedded` and `_links`) and set them as meta data. For example:
 
 ```javascript
-# Assuming GET /users returns this:
+// Assuming GET /users returns this:
 {
   _embedded: {
     users: [{...}, ...]
@@ -108,7 +108,7 @@ than `_embedded` and `_links`) and set them as meta data. For example:
   current_page: 1
 }
 
-# Using this code in your route will work:
+// Using this code in your route will work:
 store.find('user').then(function(){
   console.log( store.metadataFor('user').current_page ); // 1
 });
@@ -124,7 +124,7 @@ singular or collection requests), the values in the meta will be set.
 Example:
 
 ```javascript
-# Assuming GET /users/1 returns this:
+// Assuming GET /users/1 returns this:
 {
   id: 1,
   name: 'the user',
@@ -133,7 +133,7 @@ Example:
   }
 }
 
-# Using this code in your route will work:
+// Using this code in your route will work:
 store.find('user', 1).then(function(){
   console.log( store.metadataFor('user').my_meta_val ); // true
 });
@@ -143,7 +143,7 @@ In addition, *for collection resources only*, the links will be set on
 the meta data as well. Example:
 
 ```javascript
-# Assuming GET /users returns this:
+// Assuming GET /users returns this:
 {
   _embedded: { users: [{...}, ...] },
   _links: {
@@ -152,7 +152,7 @@ the meta data as well. Example:
   }
 }
 
-# Using this code in your route will work:
+// Using this code in your route will work:
 store.find('user').then(function(){
   console.log( store.metadataFor('user').links.next ); // '/users?page=2'
 });
@@ -161,7 +161,7 @@ store.find('user').then(function(){
 Links for a singular resource will be available on the 'data' property,
 i.e.:
 
-```
+```javascript
 store.get('user', 1).then(function(user){
   console.log( user.get('data.links') ); // {self: '/users/1', ... }
 });
