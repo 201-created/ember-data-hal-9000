@@ -34,6 +34,24 @@ function coerceId(id) {
   return id == null || id === '' ? null : id + '';
 }
 
+function halToJSONAPILink(link) {
+  let converted,
+    linkKeys = keys(link);
+
+  if (linkKeys.length === 1) {
+    converted = link.href;
+  } else {
+    converted = {href: link.href, meta: {}};
+    linkKeys.forEach(key => {
+      if (key !== 'href') {
+        converted.meta[key] = link[key];
+      }
+    });
+  }
+
+  return converted;
+}
+
 function arrayFlatten(array) {
   let flattened = [];
   return flattened.concat.apply(flattened, array);
@@ -46,7 +64,7 @@ function extractLinksIntoMeta(payload, meta) {
     meta.links = {};
 
     keys(links).forEach(function (key) {
-      meta.links[key] = links[key].href;
+      meta.links[key] = halToJSONAPILink(links[key]);
     });
   }
 
@@ -179,7 +197,7 @@ export default JSONAPISerializer.extend({
     if (payload._links) {
       attributes.links = {};
       Object.keys(payload._links).forEach(link => {
-        attributes.links[link] = this.extractLink(payload._links[link]);
+        attributes.links[link] = halToJSONAPILink(payload._links[link]);
       });
     }
 
