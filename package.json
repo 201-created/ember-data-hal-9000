@@ -1,6 +1,6 @@
 {
   "name": "ember-data-hal-9000",
-  "version": "0.3.0-beta.2",
+  "version": "0.3.0",
   "main": "index.js",
   "directories": {
     "doc": "doc",
