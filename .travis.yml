@@ -11,11 +11,19 @@ cache:
 
 env:
   - EMBER_TRY_SCENARIO=default
-  - EMBER_TRY_SCENARIO=ember-data-beta-19
-  - EMBER_TRY_SCENARIO=ember-data-beta-19-with-ember-1-13
+  - EMBER_TRY_SCENARIO=ember-data-1-13-4
+  - EMBER_TRY_SCENARIO=ember-data-1-13-9
+  - EMBER_TRY_SCENARIO=release
+  - EMBER_TRY_SCENARIO=beta
+  - EMBER_TRY_SCENARIO=canary
 
 matrix:
   fast_finish: true
+
+before_install:
+  - export PATH=/usr/local/phantomjs-2.0.0/bin:$PATH
+  - "npm config set spin false"
+  - "npm install -g npm@^2"
 
 install:
   - npm install -g bower
