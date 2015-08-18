@@ -1,5 +1,7 @@
 # Master
 
+  * Extract HAL links to JSONAPI links with `meta` (@makepanic) [#27](https://github.com/201-created/ember-data-hal-9000/pull/27)
+
 # 0.3.0
 
   * Update color syntax in docs (@clawfire) [#26](https://github.com/201-created/ember-data-hal-9000/pull/26)
