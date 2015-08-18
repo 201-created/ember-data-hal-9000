@@ -1,5 +1,7 @@
 # Master
 
+# 0.3.1
+
   * Extract HAL links to JSONAPI links with `meta` (@makepanic) [#27](https://github.com/201-created/ember-data-hal-9000/pull/27)
 
 # 0.3.0

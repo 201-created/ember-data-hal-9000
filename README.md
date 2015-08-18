@@ -39,8 +39,12 @@ import HalSerializer from "ember-data-hal-9000/serializer";
 export default HalSerializer.extend();
 ```
 
-Tested with [Ember Data versions 1.0.0-beta.15 through 1.0.0-beta.18](https://github.com/201-created/ember-data-hal-9000/blob/master/config/ember-try.js).
+Tested with [Ember Data versions 1.13.4, 1.13.9, 2.0.0-beta.1 and 2.0.0-beta.2](https://github.com/201-created/ember-data-hal-9000/blob/master/config/ember-try.js).
 Tested with Ember release, beta and canary channels.
+
+### HAL Links converted to JSONAPI links
+
+HAL [link objects](https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5) get converted to [JSONAPI document links](http://jsonapi.org/format/#document-links) as of v0.3.1 (via @makepanic).
 
 ### Sideloading
 
