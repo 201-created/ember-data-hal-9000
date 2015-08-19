@@ -37,6 +37,30 @@ test('loads meta data from top-level non-reserved keys for collection resources'
   });
 });
 
+test('loads meta data from top-level non-reserved keys for collection resources returned from store.query', function(assert){
+  stubRequest('get', '/mooses', (request) => {
+    request.ok({
+      page: 1,
+      total_pages: 2,
+      _embedded: {
+        mooses: [{
+          id: 'moose-9000',
+          _links: {
+            self: {
+              href: "http://example.com/mooses/moose-9000"
+            }
+          }
+        }]
+      }
+    });
+  });
+
+  const store = this.store();
+  return store.query('moose', {}).then(function(mooses){
+    assert.deepEqual(getMetadata(store, 'moose'), {page: 1, total_pages: 2});
+  });
+});
+
 test('loads meta data from explicit `meta` key for collections', function(assert){
   stubRequest('get', '/mooses', (request) => {
     request.ok({

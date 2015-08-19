@@ -3,10 +3,8 @@ import Ember from 'ember';
 
 let {JSONAPISerializer} = DS;
 
-// requestType values that indicate that we are loading a collection, not a single resource
-let findManyRequestTypes = ["findMany", "findAll", "findHasMany", "findQuery"],
 // Reserved keys, per the HAL spec
-  halReservedKeys = ['_embedded', '_links'],
+let halReservedKeys = ['_embedded', '_links'],
   reservedKeys = halReservedKeys.concat(['meta']),
   keys = Object.keys;
 
@@ -57,20 +55,6 @@ function arrayFlatten(array) {
   return flattened.concat.apply(flattened, array);
 }
 
-function extractLinksIntoMeta(payload, meta) {
-  let links = payload._links;
-  if (links) {
-    meta = meta || {};
-    meta.links = {};
-
-    keys(links).forEach(function (key) {
-      meta.links[key] = halToJSONAPILink(links[key]);
-    });
-  }
-
-  return meta;
-}
-
 export default JSONAPISerializer.extend({
   keyForRelationship(relationshipKey/*, relationshipMeta */) {
     return relationshipKey;
@@ -95,20 +79,18 @@ export default JSONAPISerializer.extend({
    * @param resourceHash
    * @returns {*}
    */
-  extractId: function (modelClass, resourceHash) {
+  extractId (modelClass, resourceHash) {
     var primaryKey = this.get('primaryKey');
     var id = resourceHash[primaryKey];
     return coerceId(id);
   },
 
-  extractMeta: function (store, requestType, payload) {
-    let meta = payload.meta ? payload.meta : undefined,
+  extractMeta (store, requestType, payload, primaryModelClass) {
+    const meta = payload.meta || {},
       isSingle = this.isSinglePayload(payload, requestType);
 
-    meta = meta || {};
-
-    if (findManyRequestTypes.indexOf(requestType) > -1 && !isSingle) {
-      keys(payload).forEach(function (key) {
+    if (!isSingle) {
+      keys(payload).forEach(key => {
         if (reservedKeys.indexOf(key) > -1) {
           return;
         }
@@ -116,35 +98,34 @@ export default JSONAPISerializer.extend({
         meta[key] = payload[key];
         delete payload[key];
       });
-    }
-    if (!isSingle) {
-      meta = extractLinksIntoMeta(payload, meta);
+
+      if (payload._links) {
+        meta.links = this.extractLinks(primaryModelClass, payload);
+      }
     }
 
     return meta;
   },
 
-  normalizeResponse: function (store, primaryModelClass, payload, id, requestType) {
-    const IS_SINGLE = this.isSinglePayload(payload, requestType);
-    let documentHash = {
-        data: null
-      },
-      meta = this.extractMeta(store, requestType, payload),
+  normalizeResponse (store, primaryModelClass, payload, id, requestType) {
+    const isSingle = this.isSinglePayload(payload, requestType),
+      documentHash = {},
+      meta = this.extractMeta(store, requestType, payload, primaryModelClass),
       included = [];
 
     if (meta) {
       documentHash.meta = meta;
     }
 
-    if (IS_SINGLE) {
+    if (isSingle) {
       documentHash.data = this.normalize(primaryModelClass, payload, included);
     } else {
       documentHash.data = [];
       payload._embedded = payload._embedded || {};
-      let normalizedEmbedded = Object.keys(payload._embedded).map(embeddedKey =>
-        payload._embedded[embeddedKey].map(embeddedPayload => {
-          return this.normalize(primaryModelClass, embeddedPayload, included);
-        }));
+
+      const normalizedEmbedded = Object.keys(payload._embedded).map(embeddedKey =>
+        payload._embedded[embeddedKey].map(embeddedPayload =>
+          this.normalize(primaryModelClass, embeddedPayload, included)));
 
       documentHash.data = arrayFlatten(normalizedEmbedded);
     }
@@ -154,15 +135,16 @@ export default JSONAPISerializer.extend({
   },
 
   normalize(primaryModelClass, payload, included) {
-    let data = null;
+    let data;
 
     if (payload) {
+      const attributes = this.extractAttributes(primaryModelClass, payload),
+        relationships = this.extractRelationships(primaryModelClass, payload, included);
+
       data = {
         id: this.extractId(primaryModelClass, payload),
         type: primaryModelClass.modelName
       };
-      let attributes = this.extractAttributes(primaryModelClass, payload);
-      let relationships = this.extractRelationships(primaryModelClass, payload, included);
       if (Object.keys(attributes).length > 0) {
         data.attributes = attributes;
       }
@@ -174,16 +156,28 @@ export default JSONAPISerializer.extend({
     return data;
   },
 
+  extractLinks(primaryModelClass, payload) {
+    let links;
+
+    if (payload._links) {
+      links = {};
+      Object.keys(payload._links).forEach(link => {
+        links[link] = halToJSONAPILink(payload._links[link]);
+      });
+    }
+
+    return links;
+  },
+
   extractAttributes(primaryModelClass, payload) {
-    let keyForAttribute = this.keyForAttribute,
-      payloadKey,
+    let payloadKey,
       attributes = {};
 
     Ember.assert('Payload can\'t contain attributes key',
       !payload.hasOwnProperty('attributes'));
 
     primaryModelClass.eachAttribute((attributeName, attributeMeta)=> {
-      payloadKey = keyForAttribute(attributeName, attributeMeta);
+      payloadKey = this.keyForAttribute(attributeName, attributeMeta);
 
       if (!payload.hasOwnProperty(payloadKey)) {
         return;
@@ -193,12 +187,8 @@ export default JSONAPISerializer.extend({
       delete payload[payloadKey];
     });
 
-    // add attribute links
-    if (payload._links) {
-      attributes.links = {};
-      Object.keys(payload._links).forEach(link => {
-        attributes.links[link] = halToJSONAPILink(payload._links[link]);
-      });
+    if(payload._links) {
+      attributes.links = this.extractLinks(primaryModelClass, payload);
     }
 
     return attributes;
@@ -206,22 +196,26 @@ export default JSONAPISerializer.extend({
 
   extractRelationship(relationshipModelClass, payload, included) {
     if (Ember.isNone(payload)) {
-      return null;
+      return undefined;
     }
 
     let relationshipModelName = relationshipModelClass.modelName,
-      relationship = {};
+      relationship;
 
     if (Ember.typeOf(payload) === 'object') {
-      let relationshipHash = {};
-      relationshipHash.id = coerceId(this.extractId({}, payload));
+      relationship = {
+        id: coerceId(this.extractId({}, payload))
+      };
+
       if (relationshipModelName) {
-        relationshipHash.type = this.modelNameFromPayloadKey(relationshipModelName);
+        relationship.type = this.modelNameFromPayloadKey(relationshipModelName);
         included.push(this.normalize(relationshipModelClass, payload, included));
       }
-      relationship = relationshipHash;
     } else {
-      relationship = {id: coerceId(payload), type: relationshipModelName};
+      relationship = {
+        id: coerceId(payload),
+        type: relationshipModelName
+      };
     }
 
     return relationship;
@@ -237,12 +231,12 @@ export default JSONAPISerializer.extend({
 
     if (embedded || links) {
       primaryModelClass.eachRelationship((key, relationshipMeta) => {
-        let relationship = null,
+        let relationship,
           relationshipKey = keyForRelationship(key, relationshipMeta),
           linkKey = keyForLink(key, relationshipMeta);
 
         if (embedded && embedded.hasOwnProperty(relationshipKey)) {
-          let data = null,
+          let data,
             relationModelClass = this.store.modelFor(relationshipMeta.type);
 
           if (relationshipMeta.kind === 'belongsTo') {
@@ -259,13 +253,12 @@ export default JSONAPISerializer.extend({
         if (links && links.hasOwnProperty(linkKey)) {
           relationship = relationship || {};
 
-          let link = payload._links[linkKey],
+          const link = links[linkKey],
             useRelated = !relationship.data;
 
           relationship.links = {
             [useRelated ? 'related' : 'self']: extractLink(link)
           };
-
         }
 
         if (relationship) {
