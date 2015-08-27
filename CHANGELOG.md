@@ -1,6 +1,6 @@
 # Master
 
- * allow attributes named `attributes` (@makepanic) [32](https://github.com/201-created/ember-data-hal-9000/pull/32)
+ * allow attributes named `attributes` (@makepanic) [#32](https://github.com/201-created/ember-data-hal-9000/pull/32)
  * Include root level meta data in query collection result (@makepanic) [#28](https://github.com/201-created/ember-data-hal-9000/pull/28)
  * Ensure transforms are applied to attributes (@makepanic) [#29](https://github.com/201-created/ember-data-hal-9000/pull/29)
  
