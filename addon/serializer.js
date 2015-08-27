@@ -177,9 +177,6 @@ export default JSONAPISerializer.extend({
     let payloadKey,
       attributes = {};
 
-    Ember.assert('Payload can\'t contain attributes key',
-      !payload.hasOwnProperty('attributes'));
-
     primaryModelClass.eachAttribute((attributeName, attributeMeta)=> {
       payloadKey = this.keyForAttribute(attributeName, attributeMeta);
 
