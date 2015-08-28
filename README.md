@@ -7,6 +7,7 @@ See the [IETF HAL Spec](https://tools.ietf.org/html/draft-kelly-json-hal-06) or 
 [![Build
 Status](https://travis-ci.org/201-created/ember-data-hal-9000.svg?branch=master)](https://travis-ci.org/201-created/ember-data-hal-9000)
 [![Code Climate](https://codeclimate.com/github/201-created/ember-data-hal-9000/badges/gpa.svg)](https://codeclimate.com/github/201-created/ember-data-hal-9000)
+[![Ember Observer Score](http://emberobserver.com/badges/ember-data-hal-9000.svg)](http://emberobserver.com/addons/ember-data-hal-9000)
 
 ## Compatibility
 
