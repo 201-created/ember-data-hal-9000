@@ -36,13 +36,22 @@ var mockAdapter = {
 
 var mockSerializer = {
   modelNameFromPayloadKey: function(typeKey){
+    if (typeKey === 'referred_by') {
+      return 'user';
+    }
     return Ember.Inflector.inflector.singularize(typeKey);
   }
 };
 
 var mockUserType = {
   modelName: 'user',
-  eachRelationship: Ember.K
+  eachRelationship: function (fn) {
+    fn('referred_by', {
+      type: 'user',
+      key: 'referred_by'
+    });
+    return this;
+  }
 };
 
 test('moves array embeds out of _embedded and into top-level', function(assert){
@@ -104,5 +113,29 @@ test('deeply embedded', function(assert){
     colors: [{
       id: 'c1', color: 'blue'
     }]
+  });
+});
+
+test('embedded circular', function(assert){
+  var raw = {
+    _embedded: {
+      users: [{
+        id: 'u1',
+        _embedded: {
+          referred_by: { id: 'u3' }
+        }
+      },
+      {
+        id: 'u2'
+      }]
+    }
+  };
+
+  var extracted = new EmbedExtractor(raw, mockStore, mockSerializer).
+    extractArray(mockUserType);
+
+  assert.deepEqual(extracted, {
+    users: [{ id: 'u1', 'referred_by': 'u3' }, { id: 'u2' }],
+    _users: [{ id: 'u3' }]
   });
 });
