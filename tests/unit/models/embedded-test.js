@@ -389,6 +389,63 @@ test('find many: loads embedded array of records with a custom name', function(a
   });
 });
 
+test('findMany: handles reflexive relationships', function(assert){
+  var owner1 = {
+    id: "owner-1",
+    name: "owner #1",
+    _links: {
+      self: { href: '/owners/owner-1' },
+      reports: { href: '/owners/owner-1/reports' }
+    }
+  };
+
+  var owner2 = {
+    id: "owner-2",
+    name: "owner #2",
+    _embedded: {
+      manager: owner1
+    },
+    _links: {
+      self: { href: '/owners/owner-2' },
+      reports: { href: '/owners/owner-2/reports' }
+    }
+  };
+
+  var owner3 = {
+    id: "owner-3",
+    name: "owner #3",
+    _embedded: {
+      manager: owner1
+    },
+    _links: {
+      self: { href: '/owners/owner-3' },
+      reports: { href: '/owners/owner-3/reports' }
+    }
+  };
+
+  stubRequest('get', '/owners/owner-1', (request) => {
+    request.ok(owner1);
+  });
+
+  stubRequest('get', '/owners/owner-1/reports', (request) => {
+    request.ok({
+      _embedded: {
+        reports: [owner2, owner3]
+      }
+    });
+  });
+
+  var store = this.store();
+
+  return Ember.run(function(){
+    return store.findRecord('owner', 'owner-1').then(function(_owner){
+      assert.ok(!!_owner, 'loads owner');
+      return _owner.get('reports');
+    }).then(function(reports){
+      assert.ok(reports.get('length') === 2);
+    });
+  });
+});
 
 test('find one: loads embedded array of records with a custom name', function(assert){
   stubRequest('get', '/owners/owner-1', (request) => {
