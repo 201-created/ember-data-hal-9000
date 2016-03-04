@@ -25,7 +25,7 @@ test('transforms attributes using transformers', function(assert){
 
   stubRequest('patch', '/requirements/1', (request) => {
     let body = JSON.parse(request.requestBody);
-    assert.strictEqual(body.data.attributes.temperature, 50);
+    assert.strictEqual(body.temperature, 50);
 
     request.noContent();
   });
