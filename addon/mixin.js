@@ -202,7 +202,7 @@ export default Ember.Mixin.create({
 
     if (Ember.typeOf(payload) === 'object') {
       relationship = {
-        id: coerceId(this.extractId({}, payload))
+        id: coerceId(this.extractId(relationshipModelClass, payload))
       };
 
       if (relationshipModelName) {
