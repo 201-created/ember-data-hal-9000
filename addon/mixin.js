@@ -222,16 +222,13 @@ export default Ember.Mixin.create({
   extractRelationships(primaryModelClass, payload, included) {
     let relationships = {},
       embedded = payload._embedded,
-      keyForRelationship = this.keyForRelationship,
-      keyForLink = this.keyForLink,
-      extractLink = this.extractLink,
       links = payload._links;
 
     if (embedded || links) {
       primaryModelClass.eachRelationship((key, relationshipMeta) => {
         let relationship,
-          relationshipKey = keyForRelationship(key, relationshipMeta),
-          linkKey = keyForLink(key, relationshipMeta);
+          relationshipKey = this.keyForRelationship(key, relationshipMeta),
+          linkKey = this.keyForLink(key, relationshipMeta);
 
         if (embedded && embedded.hasOwnProperty(relationshipKey)) {
           let data,
@@ -255,7 +252,7 @@ export default Ember.Mixin.create({
             useRelated = !relationship.data;
 
           relationship.links = {
-            [useRelated ? 'related' : 'self']: extractLink(link)
+            [useRelated ? 'related' : 'self']: this.extractLink(link)
           };
         }
 
