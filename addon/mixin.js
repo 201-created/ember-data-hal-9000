@@ -135,6 +135,8 @@ export default Ember.Mixin.create({
     let data;
 
     if (payload) {
+      this.normalizeUsingDeclaredMapping(primaryModelClass, payload);
+
       const attributes = this.extractAttributes(primaryModelClass, payload),
         relationships = this.extractRelationships(primaryModelClass, payload, included);
 
