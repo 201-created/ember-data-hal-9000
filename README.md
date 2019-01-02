@@ -1,5 +1,4 @@
-# Ember-data-hal-9000
-
+# Ember-data-hal-9000 - fork
 An ember-data adapter for HAL-style APIs.
 
 See the [IETF HAL Spec](https://tools.ietf.org/html/draft-kelly-json-hal-06) or [this HAL document](http://stateless.co/hal_specification.html) for more info on HAL.
