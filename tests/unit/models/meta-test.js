@@ -29,7 +29,7 @@ module('Metadata', function(hooks) {
     });
 
     const store = this.owner.lookup('service:store');
-    return store.findAll('moose').then(function(mooses){
+    return store.findAll('moose').then(function(){
       assert.deepEqual(getMetadata(store, 'moose'), {page: 1, total_pages: 2});
     });
   });
@@ -53,7 +53,7 @@ module('Metadata', function(hooks) {
     });
 
     const store = this.owner.lookup('service:store');
-    return store.query('moose', {}).then(function(mooses){
+    return store.query('moose', {}).then(function(){
       assert.deepEqual(getMetadata(store, 'moose'), {page: 1, total_pages: 2});
     });
   });
@@ -79,7 +79,7 @@ module('Metadata', function(hooks) {
     });
 
     const store = this.owner.lookup('service:store');
-    return store.findAll('moose').then(function(mooses){
+    return store.findAll('moose').then(function(){
       assert.deepEqual(getMetadata(store, 'moose'), {page: 1, total_pages: 2});
     });
   });
@@ -105,7 +105,7 @@ module('Metadata', function(hooks) {
     });
 
     const store = this.owner.lookup('service:store');
-    return store.findAll('moose').then(function(mooses){
+    return store.findAll('moose').then(function(){
       assert.deepEqual(getMetadata(store, 'moose'),
                        {links: {self: '/mooses'}, some_meta_val: 42});
     });
@@ -127,7 +127,7 @@ module('Metadata', function(hooks) {
 
     const store = this.owner.lookup('service:store');
     return run(function(){
-      store.findRecord('moose', 'moose-9000').then(function(mooses){
+      store.findRecord('moose', 'moose-9000').then(function(){
         assert.deepEqual(getMetadata(store, 'moose'), {page: 1, total_pages: 2});
       });
     });
