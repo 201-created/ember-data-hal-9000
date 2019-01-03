@@ -1,47 +1,45 @@
 import { run } from '@ember/runloop';
-import {
-  test,
-  moduleForModel
-} from "ember-qunit";
+import { module, test } from 'qunit';
+import { setupTest } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
 
-moduleForModel('requirement', 'Transformer', {
-  needs: ['serializer:application', 'adapter:application', 'transform:temperature']
-});
+module('Transformer', function(hooks) {
+  setupTest(hooks);
 
-test('transforms attributes using transformers', function(assert){
-  assert.expect(2);
+  test('transforms attributes using transformers', function(assert){
+    assert.expect(2);
 
-  stubRequest('get', '/requirements/1', (request) => {
-    request.ok({
-      id: 1,
-      name: 'hot',
-      temperature: 40,
-      _links: {
-        self: { href: '/requirements/1' }
-      }
+    stubRequest('get', '/requirements/1', (request) => {
+      request.ok({
+        id: 1,
+        name: 'hot',
+        temperature: 40,
+        _links: {
+          self: { href: '/requirements/1' }
+        }
+      });
     });
-  });
 
-  stubRequest('patch', '/requirements/1', (request) => {
-    let body = JSON.parse(request.requestBody);
-    assert.strictEqual(body.data.attributes.temperature, 50);
+    stubRequest('patch', '/requirements/1', (request) => {
+      let body = JSON.parse(request.requestBody);
+      assert.strictEqual(body.data.attributes.temperature, 50);
 
-    request.noContent();
-  });
+      request.noContent();
+    });
 
-  const store = this.store();
-  return run(function(){
-    return store.findRecord('requirement', 1).then(function(requirement){
-      // according to wolframalpha this equals 104°F
-      // http://www.wolframalpha.com/input/?i=convert+40%C2%B0C+to+degrees+fahrenheit
-      assert.strictEqual(requirement.get('temperature'), 104);
+    const store = this.owner.lookup('service:store');
+    return run(function(){
+      return store.findRecord('requirement', 1).then(function(requirement){
+        // according to wolframalpha this equals 104°F
+        // http://www.wolframalpha.com/input/?i=convert+40%C2%B0C+to+degrees+fahrenheit
+        assert.strictEqual(requirement.get('temperature'), 104);
 
-      // according to wolframalpha this equals 50°C
-      // http://www.wolframalpha.com/input/?i=convert+122%C2%B0F+to+degrees+celsius
-      requirement.set('temperature', 122);
+        // according to wolframalpha this equals 50°C
+        // http://www.wolframalpha.com/input/?i=convert+122%C2%B0F+to+degrees+celsius
+        requirement.set('temperature', 122);
 
-      requirement.save();
+        requirement.save();
+      });
     });
   });
 });
