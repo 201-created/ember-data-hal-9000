@@ -1,9 +1,9 @@
+import { run } from '@ember/runloop';
 import {
   test,
   moduleForModel
 } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
-import Ember from "ember";
 
 moduleForModel('car', 'Attributes', {
   needs: ['serializer:application', 'adapter:application', 'transform:temperature',
@@ -39,7 +39,7 @@ test('allows `attributes` attributes and relations', function(assert){
   });
 
   const store = this.store();
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('car', 1).then(function(car){
       return car.get('attributes').then(attributes => {
         assert.equal(attributes.get('firstObject.attributes'), 2);

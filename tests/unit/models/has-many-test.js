@@ -1,9 +1,9 @@
+import { run } from '@ember/runloop';
 import {
   test,
   moduleForModel
 } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
-import Ember from "ember";
 
 moduleForModel('car', 'Car : hasMany', {
   needs: [
@@ -51,7 +51,7 @@ test('car#hasMany wheels loads wheels from link', function(assert){
     });
   });
 
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('car', 1).then(function(car){
       return car.get('wheels');
     }).then(function(wheels){
@@ -103,7 +103,7 @@ test('car#hasMany wheels loads wheels from link without breaking because of hal 
     });
   });
 
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('car', 1).then(function(car){
       return car.get('wheels');
     }).then(function(wheels){

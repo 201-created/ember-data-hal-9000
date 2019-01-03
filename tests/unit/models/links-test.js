@@ -1,9 +1,9 @@
+import { run } from '@ember/runloop';
 import {
   test,
   moduleForModel
 } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
-import Ember from "ember";
 
 moduleForModel('moose', 'Links', {
   needs: ['serializer:application', 'adapter:application']
@@ -21,7 +21,7 @@ test('single resource links are available in model data.links property', functio
   });
 
   const store = this.store();
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('moose', 1).then(function(moose){
       var links = moose.get('data.links');
 
@@ -42,7 +42,7 @@ test('single resource link objects are available in model data.links property', 
   });
 
   const store = this.store();
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('moose', 1).then(function(moose){
       var links = moose.get('data.links');
 

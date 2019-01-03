@@ -1,9 +1,9 @@
+import { run } from '@ember/runloop';
 import {
   test,
   moduleForModel
 } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
-import Ember from "ember";
 
 function getMetadata(store, type) {
   return store._metadataFor(type);
@@ -129,7 +129,7 @@ test('loads meta data from explicit `meta` key for single resources', function(a
   });
 
   const store = this.store();
-  return Ember.run(function(){
+  return run(function(){
     store.findRecord('moose', 'moose-9000').then(function(mooses){
       assert.deepEqual(getMetadata(store, 'moose'), {page: 1, total_pages: 2});
     });

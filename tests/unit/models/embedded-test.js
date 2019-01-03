@@ -1,9 +1,9 @@
+import { run } from '@ember/runloop';
 import {
   test,
   moduleForModel
 } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
-import Ember from "ember";
 
 moduleForModel('car', 'Embedded Records', {
   needs: [
@@ -364,7 +364,7 @@ test('find many: loads embedded array of records with a custom name', function(a
   var store = this.store();
   var owners;
 
-  return Ember.run(function(){
+  return run(function(){
     return store.findAll('owner').then(function(_owners){
       owners = _owners;
 
@@ -437,7 +437,7 @@ test('findMany: handles reflexive relationships', function(assert){
 
   var store = this.store();
 
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('owner', 'owner-1').then(function(_owner){
       assert.ok(!!_owner, 'loads owner');
       return _owner.get('reports');
@@ -469,7 +469,7 @@ test('find one: loads embedded array of records with a custom name', function(as
   var store = this.store();
   var owner;
 
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('owner', 'owner-1').then(function(_owner){
       owner = _owner;
 
@@ -508,7 +508,7 @@ test('find one: loads singly embedded records', function(assert){
 
   var store = this.store();
 
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('owner', 'owner-1').then(function(owner){
       assert.ok(!!owner, 'loads owner');
       assert.equal(owner.get('name'), 'owner #1');
@@ -544,7 +544,7 @@ test('find one: loads an embedded record with a custom name', function(assert){
   var store = this.store();
   var owner;
 
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('owner', 'owner-1').then(function(_owner){
       owner = _owner;
 

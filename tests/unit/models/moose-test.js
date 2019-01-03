@@ -1,9 +1,9 @@
+import { run } from '@ember/runloop';
 import {
   test,
   moduleForModel
 } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
-import Ember from "ember";
 
 moduleForModel('moose', 'Moose model', {
   needs: ['serializer:application', 'adapter:application']
@@ -80,7 +80,7 @@ test('loads single HAL formatted record', function(assert){
 
   const store = this.store();
 
-  return Ember.run(function(){
+  return run(function(){
     return store.find('moose', 'moose-9000').then(function(moose){
       assert.ok(moose, 'record found');
       assert.ok(moose.get('id'), 'moose-9000', 'record loaded');

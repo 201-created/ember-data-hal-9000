@@ -1,9 +1,9 @@
+import { run } from '@ember/runloop';
 import {
   test,
   moduleForModel
 } from "ember-qunit";
 import { stubRequest } from 'ember-cli-fake-server';
-import Ember from "ember";
 
 moduleForModel('requirement', 'Transformer', {
   needs: ['serializer:application', 'adapter:application', 'transform:temperature']
@@ -31,7 +31,7 @@ test('transforms attributes using transformers', function(assert){
   });
 
   const store = this.store();
-  return Ember.run(function(){
+  return run(function(){
     return store.findRecord('requirement', 1).then(function(requirement){
       // according to wolframalpha this equals 104°F
       // http://www.wolframalpha.com/input/?i=convert+40%C2%B0C+to+degrees+fahrenheit
