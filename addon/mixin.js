@@ -83,7 +83,7 @@ export default Mixin.create({
     return coerceId(id);
   },
 
-  extractMeta (store, requestType, payload, primaryModelClass) {
+  _extractMeta (store, requestType, payload, primaryModelClass) {
     const meta = payload.meta || {},
       isSingle = this.isSinglePayload(payload, requestType);
 
@@ -108,7 +108,7 @@ export default Mixin.create({
   normalizeResponse (store, primaryModelClass, payload, id, requestType) {
     const isSingle = this.isSinglePayload(payload, requestType),
       documentHash = {},
-      meta = this.extractMeta(store, requestType, payload, primaryModelClass),
+      meta = this._extractMeta(store, requestType, payload, primaryModelClass),
       included = [];
 
     if (meta) {
