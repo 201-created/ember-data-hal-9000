@@ -1,10 +1,11 @@
 import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { setupTest } from "ember-qunit";
-import { stubRequest } from 'ember-cli-fake-server';
+import { stubRequest, setupFakeServer } from 'ember-cli-fake-server';
 
 module('Links', function(hooks) {
   setupTest(hooks);
+  setupFakeServer(hooks);
 
   test('single resource links are available in model data.links property', function(assert){
     stubRequest('get', '/mooses/1', (request) => {

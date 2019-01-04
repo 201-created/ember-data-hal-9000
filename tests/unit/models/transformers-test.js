@@ -1,14 +1,12 @@
-import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
-import { setupTest } from "ember-qunit";
-import { stubRequest } from 'ember-cli-fake-server';
+import { setupTest } from 'ember-qunit';
+import { stubRequest, setupFakeServer } from 'ember-cli-fake-server';
 
 module('Transformer', function(hooks) {
   setupTest(hooks);
+  setupFakeServer(hooks);
 
-  test('transforms attributes using transformers', function(assert){
-    assert.expect(2);
-
+  test('transforms attributes using transformers', async function(assert) {
     stubRequest('get', '/requirements/1', (request) => {
       request.ok({
         id: 1,
@@ -28,18 +26,13 @@ module('Transformer', function(hooks) {
     });
 
     const store = this.owner.lookup('service:store');
-    return run(function(){
-      return store.findRecord('requirement', 1).then(function(requirement){
-        // according to wolframalpha this equals 104°F
-        // http://www.wolframalpha.com/input/?i=convert+40%C2%B0C+to+degrees+fahrenheit
-        assert.strictEqual(requirement.get('temperature'), 104);
 
-        // according to wolframalpha this equals 50°C
-        // http://www.wolframalpha.com/input/?i=convert+122%C2%B0F+to+degrees+celsius
-        requirement.set('temperature', 122);
+    let requirement = await store.findRecord('requirement', 1);
 
-        requirement.save();
-      });
-    });
+    // according to wolframalpha this equals 50°C
+    // http://www.wolframalpha.com/input/?i=convert+122%C2%B0F+to+degrees+celsius
+    requirement.set('temperature', 122);
+
+    await requirement.save();
   });
 });

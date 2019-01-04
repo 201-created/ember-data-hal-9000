@@ -1,10 +1,11 @@
 import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { setupTest } from "ember-qunit";
-import { stubRequest } from 'ember-cli-fake-server';
+import { stubRequest, setupFakeServer } from 'ember-cli-fake-server';
 
 module('Embedded Records', function(hooks) {
   setupTest(hooks);
+  setupFakeServer(hooks);
 
   test('findMany: loads deeply nested embedded records', function(assert){
     stubRequest('get', '/cars', (request) => {
