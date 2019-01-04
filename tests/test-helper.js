@@ -1,15 +1,8 @@
-/* global QUnit */
-import resolver from './helpers/resolver';
-import {
-  setResolver
-} from 'ember-qunit';
-import FakeServer from 'ember-cli-fake-server';
+import Application from '../app';
+import config from '../config/environment';
+import { setApplication } from '@ember/test-helpers';
+import { start } from 'ember-qunit';
 
-setResolver(resolver);
+setApplication(Application.create(config.APP));
 
-QUnit.testStart(function() {
-  FakeServer.start();
-});
-QUnit.testDone(function() {
-  FakeServer.stop();
-});
+start();
