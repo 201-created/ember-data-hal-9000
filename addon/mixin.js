@@ -82,7 +82,7 @@ export default Ember.Mixin.create({
     return coerceId(id);
   },
 
-  extractMeta (store, requestType, payload, primaryModelClass) {
+  extractMetadata (store, requestType, payload, primaryModelClass) {
     const meta = payload.meta || {},
       isSingle = this.isSinglePayload(payload, requestType);
 
@@ -107,7 +107,7 @@ export default Ember.Mixin.create({
   normalizeResponse (store, primaryModelClass, payload, id, requestType) {
     const isSingle = this.isSinglePayload(payload, requestType),
       documentHash = {},
-      meta = this.extractMeta(store, requestType, payload, primaryModelClass),
+      meta = this.extractMetadata(store, requestType, payload, primaryModelClass),
       included = [];
 
     if (meta) {
